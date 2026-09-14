@@ -1,0 +1,35 @@
+# Node / Next.js
+node_modules/
+.next/
+out/
+npm-debug.log*
+
+# Go
+*.exe
+mrbuilder-api
+backend/mrbuilder-api
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Backups & archives
+*.tgz
+*.tar.gz
+*.sql
+db_backup_*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Old artifacts
+frontend/
+docker-compose.yml.bak
+Caddyfile
+!backend/migrations/*.sql
+.env

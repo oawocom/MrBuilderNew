@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-25: rgb(255 252 248);
+  --color-brand-50: rgb(255 248 240);
+  --color-brand-100: rgb(254 237 220);
+  --color-brand-200: rgb(253 214 185);
+  --color-brand-300: rgb(252 186 140);
+  --color-brand-400: rgb(250 149 95);
+  --color-brand-500: rgb(239 104 32);
+  --color-brand-600: rgb(239 104 32);
+  --color-brand-700: rgb(194 83 25);
+  --color-brand-800: rgb(155 66 20);
+  --color-brand-900: rgb(124 53 16);
+  --color-brand-950: rgb(67 29 9);
+
+  --font-sans: var(--font-inter), -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-display: var(--font-montserrat), var(--font-inter), sans-serif;
+}
+
+html, body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
