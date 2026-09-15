@@ -3,17 +3,17 @@ package models
 import "time"
 
 type Conversation struct {
-	ID           string    `json:"id"`
-	JobID        string    `json:"job_id"`
-	ConsumerID   string    `json:"consumer_id"`
-	ContractorID string    `json:"contractor_id"`
-	IsActive     bool      `json:"is_active"`
-	CreatedAt    time.Time `json:"created_at"`
-	JobTitle     string    `json:"job_title,omitempty"`
-	OtherName    string    `json:"other_name,omitempty"`
-	LastMessage  *string   `json:"last_message,omitempty"`
+	ID           string     `json:"id"`
+	JobID        string     `json:"job_id"`
+	ConsumerID   string     `json:"consumer_id"`
+	ContractorID string     `json:"contractor_id"`
+	IsActive     bool       `json:"is_active"`
+	CreatedAt    time.Time  `json:"created_at"`
+	JobTitle     string     `json:"job_title,omitempty"`
+	OtherName    string     `json:"other_name,omitempty"`
+	LastMessage  *string    `json:"last_message,omitempty"`
 	LastAt       *time.Time `json:"last_message_at,omitempty"`
-	UnreadCount  int       `json:"unread_count"`
+	UnreadCount  int        `json:"unread_count"`
 }
 
 type Message struct {

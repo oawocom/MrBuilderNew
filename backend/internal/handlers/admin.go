@@ -365,7 +365,6 @@ func (h *AdminHandler) ListWarranties(c *gin.Context) {
 	utils.Success(c, http.StatusOK, "", list)
 }
 
-
 // PATCH /admin/waitlist/:id/activate
 func (h *AdminHandler) ActivateWaitlist(c *gin.Context) {
 	res, err := h.DB.Exec(`UPDATE waitlist SET status='activated' WHERE id=$1`, c.Param("id"))

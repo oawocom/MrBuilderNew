@@ -20,6 +20,7 @@ services:
       PORT: "8080"
       DATABASE_URL: "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable"
       JWT_SECRET: ${JWT_SECRET}
+      SETTINGS_ENC_KEY: ${SETTINGS_ENC_KEY}
       ENVIRONMENT: "production"
     depends_on:
       - db

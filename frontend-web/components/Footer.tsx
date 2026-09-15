@@ -27,7 +27,7 @@ export default function Footer() {
             </Link>
           ))}
         </menu>
-        <p className="text-gray-500">© 2025 Mr.Builder</p>
+        <p className="text-gray-500">© 2026 Mr.Builder</p>
       </nav>
     </footer>
   );

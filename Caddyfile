@@ -1,0 +1,14 @@
+new.mrbuilder.com {
+	# API
+	handle /api/* {
+		reverse_proxy api:8080
+	}
+	handle /health {
+		reverse_proxy api:8080
+	}
+
+	# Frontend (will be added as the "web" container later)
+	handle {
+		respond "MrBuilder — coming soon" 200
+	}
+}

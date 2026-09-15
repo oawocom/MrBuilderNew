@@ -124,9 +124,30 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	if user.Status == "suspended" || user.Status == "deactivated" {
-		utils.Error(c, http.StatusForbidden, "Account is not active")
+	if user.Status == "suspended" {
+
+		utils.Error(c, http.StatusForbidden, "Account is suspended")
+
 		return
+
+	}
+
+	if user.Status == "deactivated" {
+
+		var restored bool
+
+		h.DB.QueryRow(`UPDATE users SET status='active', deletion_requested_at=NULL, updated_at=NOW() WHERE id=$1 AND deletion_requested_at IS NOT NULL AND deleted_at IS NULL RETURNING TRUE`, user.ID).Scan(&restored)
+
+		if !restored {
+
+			utils.Error(c, http.StatusForbidden, "Account is not active")
+
+			return
+
+		}
+
+		user.Status = "active"
+
 	}
 
 	h.DB.Exec("UPDATE users SET last_login_at=NOW() WHERE id=$1", user.ID)

@@ -28,8 +28,6 @@ Thumbs.db
 .idea/
 
 # Old artifacts
-frontend/
 docker-compose.yml.bak
-Caddyfile
 !backend/migrations/*.sql
 .env

@@ -7,28 +7,36 @@ import { useEffect, useState } from "react";
 import { api, clearSession, getUser, User } from "@/lib/api";
 
 const adminItems = [
-  { label: "Admin Dashboard", href: "/admin", icon: "shield" },
-  { label: "Platform Analytics", href: "/admin/analytics", icon: "trend" },
-  { label: "Customers", href: "/admin/customers", icon: "user" },
-  { label: "Team", href: "/admin/team", icon: "user" },
-  { label: "Services", href: "/admin/services", icon: "clock" },
-  { label: "Appointments", href: "/admin/appointments", icon: "chat" },
-  { label: "Transactions", href: "/admin/transactions", icon: "dollar" },
-  { label: "Warranties", href: "/admin/warranties", icon: "check" },
-  { label: "Partners", href: "/admin/partners", icon: "user" },
-  { label: "Waitlist", href: "/admin/waitlist", icon: "clock" },
-  { label: "System Settings", href: "/admin/settings", icon: "settings" },
+  { label: "Dashboard", href: "/manage", icon: "shield" },
+  { label: "Jobs", href: "/manage/jobs", icon: "clock" },
+  { label: "Contractors", href: "/manage/contractors", icon: "user" },
+  { label: "Customers", href: "/manage/customers", icon: "user" },
+  { label: "Payouts", href: "/manage/payouts", icon: "dollar" },
+  { label: "MrCare claims", href: "/manage/mrcare", icon: "check" },
+  { label: "Mr Supply", href: "/manage/store", icon: "pie" },
+  { label: "Training", href: "/manage/training", icon: "file" },
+  { label: "Pricing", href: "/manage/pricing", icon: "trend" },
+  { label: "Platform settings", href: "/manage/settings", icon: "settings" },
+  { label: "Integrations", href: "/manage/integrations", icon: "settings" },
+  { label: "Transactions", href: "/manage/transactions", icon: "dollar" },
+  { label: "Warranties", href: "/manage/warranties", icon: "check" },
+  { label: "Waitlist", href: "/manage/waitlist", icon: "clock" },
+  { label: "Partners", href: "/manage/partners", icon: "user" },
+  { label: "Team", href: "/manage/team", icon: "user" },
 ];
 
 const items = [
-  { label: "Dashboard", href: "/profile", icon: "chart" },
-  { label: "My profile", href: "/profile/settings", icon: "user" },
-  { label: "Service history", href: "/profile/service-history", icon: "clock" },
-  { label: "My invoices", href: "/profile/invoices", icon: "file" },
-  { label: "Warranty documents", href: "/profile/warranty", icon: "check" },
-  { label: "My quotes", href: "/profile/quotes", icon: "pie" },
-  { label: "Scheduled Appointments", href: "/profile/appointments", icon: "chat" },
-  { label: "My claims", href: "/profile/claims", icon: "dollar" },
+  { label: "My requests", href: "/profile", icon: "clock" },
+  { label: "New request", href: "/profile/requests/new", icon: "chart" },
+  { label: "My pergolas", href: "/profile/pergolas", icon: "pie" },
+  { label: "MrCare", href: "/profile/mrcare", icon: "check" },
+  { label: "Documents", href: "/profile/documents", icon: "file" },
+  { label: "Settings", href: "/profile/settings", icon: "settings" },
+];
+
+const contractorItems = [
+  { label: "Overview", href: "/profile/contractor", icon: "shield" },
+  { label: "Settings", href: "/profile/settings", icon: "settings" },
 ];
 
 function Icon({ name }: { name: string }) {
@@ -76,7 +84,7 @@ export default function Sidebar() {
 
       <nav className="flex-1 px-2 lg:px-4">
         <ul className="flex flex-col gap-0.5">
-          {(user?.role === "admin" ? adminItems : items).map((item) => {
+          {(user?.role === "admin" ? adminItems : user?.role === "contractor" ? contractorItems : items).map((item) => {
             const active = pathname === item.href;
             return (
               <li key={item.href}>

@@ -19,16 +19,16 @@ func NewWarrantyHandler(db *sql.DB) *WarrantyHandler {
 }
 
 type warrantyRow struct {
-	ID           string     `json:"id"`
-	JobID        string     `json:"job_id"`
-	JobTitle     string     `json:"job_title"`
-	ConsumerID   string     `json:"consumer_id"`
-	ContractorID *string    `json:"contractor_id"`
-	WarrantyType string     `json:"warranty_type"`
-	Status       string     `json:"status"`
-	StartDate    time.Time  `json:"start_date"`
-	EndDate      time.Time  `json:"end_date"`
-	CreatedAt    time.Time  `json:"created_at"`
+	ID           string    `json:"id"`
+	JobID        string    `json:"job_id"`
+	JobTitle     string    `json:"job_title"`
+	ConsumerID   string    `json:"consumer_id"`
+	ContractorID *string   `json:"contractor_id"`
+	WarrantyType string    `json:"warranty_type"`
+	Status       string    `json:"status"`
+	StartDate    time.Time `json:"start_date"`
+	EndDate      time.Time `json:"end_date"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 // POST /jobs/:id/warranties — assigned contractor issues a warranty for a confirmed job
