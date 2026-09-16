@@ -13,18 +13,19 @@ import { useSession } from "../../auth/session";
 import { useTheme } from "../../theme/ThemeProvider";
 import { font } from "../../theme/tokens";
 import { RootParams } from "../../navigation";
+import { useContent } from "../../state/content";
 
 const T = ["Account information", "Address information", "Choose your role", "Business information", "Insurance & skills", "Final steps"];
 const SUB = ["Create your account credentials.", "We need your address for job assignments.", "Select the role that best matches your skills and experience.", "Connect with high-value projects in outdoor living spaces.", "Verify your insurance and tell us about your skills.", "Review and accept the agreements to complete your application."];
 const ROLES = [["inspector", "Inspector", "Conduct on-site diagnostics, recommend parts, and upsell services.", "$70 per inspection"], ["service_team", "Service Team", "Perform repair services in teams of 1–2.", "75–80% of labor cost"], ["installation_team", "Installation Team", "Handle new pergola installations (team of 2–4).", "75–80% of project fee"]];
-const SYSTEMS = ["Suntent", "StruXure", "Alumawood", "Renson", "Azenco", "Other"];
-const SERVICES = [["repair", "Repair"], ["programming", "Programming & Smart Controls"], ["upgrades", "Upgrades & Accessories"], ["inspection", "Inspection & Diagnostics"], ["maintenance", "Maintenance"], ["cleaning", "Cleaning"], ["removal", "Removal & Relocation"]];
+const SERVICES0: [string, string][] = [["repair", "Repair"], ["programming", "Programming & Smart Controls"], ["upgrades", "Upgrades & Accessories"], ["inspection", "Inspection & Diagnostics"], ["maintenance", "Maintenance"], ["cleaning", "Cleaning"], ["removal", "Removal & Relocation"]];
 const YEARS = ["Less than 1 year", "1–2 years", "3–5 years", "6–10 years", "10+ years"];
 
 export default function ProSignupScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootParams>>();
   const { register } = useSession();
   const { c } = useTheme();
+  const content = useContent(); const SYSTEMS = content.pergola_systems; const SERVICES = content.categories.length ? content.categories.filter((k) => k.slug !== "installation").map((k) => [k.slug, k.name] as [string, string]) : SERVICES0;
   const [n, setN] = useState(1); const [busy, setBusy] = useState(false); const [done, setDone] = useState(false); const [pick, setPick] = useState<null | "state" | "years">(null);
   const [f, setF] = useState({ first: "", last: "", email: "", phone: "", pw: "", pw2: "", street: "", apt: "", city: "", state: "", zip: "", role: "installation_team", biz: "llc", ssn: "", coi: "", insProgram: false, years: "", systems: [] as string[], services: [] as string[], certs: [] as string[], agreeTerms: false, agreeIC: false, agreeBg: false });
   const S = (n: number, w: "400" | "500" | "600" | "700" = "400", col = c.text) => ({ fontSize: n, fontFamily: w === "400" ? font.regular : w === "500" ? font.medium : w === "600" ? font.semibold : font.bold, color: col });

@@ -12,10 +12,10 @@ import { useTheme } from "../../theme/ThemeProvider";
 import { font } from "../../theme/tokens";
 import { RootParams } from "../../navigation";
 import type { Sub } from "./MrCareScreen";
+import { useContent } from "../../state/content";
 
 interface Pergola { id: string; name: string }
 interface Equipment { id: string; pergola_id: string; device_type: string; brand: string | null; model: string | null }
-const DEVICES = ["Drive motor (roof louvers)", "Gearbox", "Rain sensor", "Wind sensor", "Sun sensor", "Remote control", "Wall controller", "Power supply / transformer", "Control board", "LED driver / dimmer"];
 const ISSUES = [["noPower", "No power / doesn't respond"], ["stops", "Stops midway or moves erratically"], ["noise", "Grinding or clicking noise"], ["sensor", "Sensor not triggering (rain / wind / sun)"], ["remote", "Remote or controller not pairing"], ["other", "Other"]];
 const PRIO = [["low", "Low", "within 2 weeks"], ["normal", "Medium", "within 1 week"], ["high", "High", "within 2 days"]];
 
@@ -23,6 +23,7 @@ export default function ElectronicsClaimScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootParams>>();
   const { params } = useRoute<{ key: string; name: string; params: { subscriptionId: string; pergolaId?: string } }>();
   const { c } = useTheme();
+  const DEVICES = useContent().electronics_devices;
   const [sub, setSub] = useState<Sub | null>(null); const [pergolas, setPergolas] = useState<Pergola[]>([]); const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [f, setF] = useState({ pergola: params.pergolaId ?? "", device: "", equipmentId: "", issue: "", prio: "normal", text: "" }); const [photos, setPhotos] = useState<string[]>([]); const [pick, setPick] = useState<null | "pergola" | "device">(null); const [busy, setBusy] = useState(false);
   useEffect(() => { (async () => { const [s, g, e] = await Promise.all([api<Sub>(`/mrcare/subscriptions/${params.subscriptionId}`), api<Pergola[]>("/pergolas"), api<Equipment[]>("/equipment")]); setSub(s.data ?? null); const ps = (g.data ?? []).filter((p) => s.data?.pergola_ids.includes(p.id)); setPergolas(ps); setEquipment(e.data ?? []); if (!f.pergola && ps[0]) setF((x) => ({ ...x, pergola: ps[0].id })); })(); }, [params.subscriptionId]); // eslint-disable-line react-hooks/exhaustive-deps

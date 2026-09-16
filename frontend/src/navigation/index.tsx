@@ -1,5 +1,5 @@
 import React from "react";
-import { NavigationContainer, DefaultTheme, DarkTheme } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme, DarkTheme, createNavigationContainerRef } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
@@ -79,6 +79,7 @@ export type RootParams = {
   JobDetail: { id: string }; Lesson: { slug: string }; Notifications: undefined;
   Earnings: undefined; PersonalInfo: undefined; ProSettings: undefined; Help: undefined; Legal: { kind: "terms" | "privacy" }; TransactionDetail: { id: string }; PayoutMethod: undefined; Schedule: undefined; ClientComment: { id: string }; DisputeForm: { id: string }; RateClient: { id: string; confirmed?: boolean }; InspectionReport: { id: string }; Training: undefined; Store: { jobId?: string } | undefined; StoreSearch: { jobId?: string } | undefined; StoreCategories: undefined; StoreProducts: { category?: string; title?: string; favorites?: boolean; jobId?: string } | undefined; StoreProduct: { id: string; jobId?: string }; StoreCart: { jobId?: string } | undefined; StoreCheckout: { jobId?: string } | undefined; StoreOrders: undefined; StoreOrder: { id: string; track?: boolean }; StoreAddresses: undefined;
 };
+export const navigationRef = createNavigationContainerRef<RootParams>();
 const Stack = createNativeStackNavigator<RootParams>();
 const Tabs = createBottomTabNavigator();
 
@@ -117,7 +118,7 @@ export default function RootNavigator() {
   const theme = { ...(dark ? DarkTheme : DefaultTheme), colors: { ...(dark ? DarkTheme : DefaultTheme).colors, background: c.bg, card: c.surface, text: c.text, primary: c.primary, border: c.border } };
   if (!ready) return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: c.bg }}><ActivityIndicator color={c.primary} /></View>;
   return (
-    <NavigationContainer theme={theme}>
+    <NavigationContainer ref={navigationRef} theme={theme}>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {!user ? (
           <>

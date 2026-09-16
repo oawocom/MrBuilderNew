@@ -1,0 +1,14 @@
+{
+  "cli": { "version": ">= 12.0.0", "appVersionSource": "remote" },
+  "build": {
+    "base": { "node": "22.12.0", "env": { "API_URL": "https://new.mrbuilder.com/api/v1" } },
+    "consumer-preview": { "extends": "base", "distribution": "internal", "env": { "APP_VARIANT": "consumer" }, "ios": { "simulator": false } },
+    "contractor-preview": { "extends": "base", "distribution": "internal", "env": { "APP_VARIANT": "contractor" } },
+    "consumer": { "extends": "base", "env": { "APP_VARIANT": "consumer" }, "autoIncrement": true },
+    "contractor": { "extends": "base", "env": { "APP_VARIANT": "contractor" }, "autoIncrement": true }
+  },
+  "submit": {
+    "consumer": { "ios": { "ascAppId": "" } },
+    "contractor": { "ios": { "ascAppId": "" } }
+  }
+}

@@ -9,16 +9,17 @@ import { Header, PickerSheet, SelectField } from "../../components/sheet";
 import { api, Category, uploadFile } from "../../api/client";
 import { useSession } from "../../auth/session";
 import { useTheme } from "../../theme/ThemeProvider";
+import { useContent } from "../../state/content";
 import { font } from "../../theme/tokens";
 
 interface Profile { title?: string | null; years_experience?: string | null; service_area?: string | null; max_distance_miles?: number | null; skills?: string[]; pergola_systems?: string[]; documents?: { name: string; url?: string; expires_at?: string | null }[] }
 const YEARS = ["Less than 1 year", "1–2 years", "3–5 years", "6–10 years", "10+ years"];
-const SYSTEMS = ["Suntent", "StruXure", "Alumawood", "Renson", "Azenco", "Other"];
 
 export default function PersonalInfoScreen() {
   const nav = useNavigation();
   const { user, refreshUser } = useSession();
   const { c } = useTheme();
+  const SYSTEMS = useContent().pergola_systems;
   const [f, setF] = useState({ first: user?.first_name ?? "", last: user?.last_name ?? "", phone: user?.phone ?? "", title: "", years: "", area: "", dist: "50" }); const [skills, setSkills] = useState<string[]>([]); const [systems, setSystems] = useState<string[]>([]); const [cats, setCats] = useState<Category[]>([]); const [docs, setDocs] = useState<Profile["documents"]>([]);
   const [pwOpen, setPwOpen] = useState(false); const [pw, setPw] = useState({ n: "", n2: "" }); const [pick, setPick] = useState(false); const [busy, setBusy] = useState(false);
   useEffect(() => { api<{ contractor_profile?: Profile } & Profile>("/profile").then((r) => { const p = (r.data?.contractor_profile ?? r.data) as Profile | undefined; if (!p) return; setF((x) => ({ ...x, title: p.title ?? "", years: p.years_experience ?? "", area: p.service_area ?? "", dist: String(p.max_distance_miles ?? 50) })); setSkills(p.skills ?? []); setSystems(p.pergola_systems ?? []); setDocs(p.documents ?? []); }); api<Category[]>("/categories").then((r) => setCats((r.data ?? []).filter((k) => k.slug !== "installation"))); }, []);

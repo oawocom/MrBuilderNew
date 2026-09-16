@@ -10,6 +10,7 @@ import { useSession } from "../../auth/session";
 import { useTheme } from "../../theme/ThemeProvider";
 import { font } from "../../theme/tokens";
 import { RootParams } from "../../navigation";
+import { useContent } from "../../state/content";
 
 interface Draft { id: string; service_category: string | null; step: string | null; updated_at: string }
 interface Pergola { id: string; name: string; city: string | null; structure_type: string | null; width_ft: number | null; length_ft: number | null; lat: number | null; lng: number | null; photo_url: string | null; spec: { enclosures?: { type: string }[]; accessories?: { type: string; qty: number }[] } }
@@ -42,12 +43,12 @@ function stageOf(j: Job): { chip: string; tone: "ok" | "warn" | "info" | "err"; 
 const wmo = (code: number): { name: string; icon: keyof typeof Ionicons.glyphMap; key: string } =>
   code === 0 ? { name: "Sunny", icon: "sunny-outline", key: "sunny" } : code <= 2 ? { name: "Partly cloudy", icon: "partly-sunny-outline", key: "partly" } : code === 3 ? { name: "Cloudy", icon: "cloud-outline", key: "partly" }
   : code >= 95 ? { name: "Thunderstorm", icon: "thunderstorm-outline", key: "thunder" } : code >= 71 && code <= 77 ? { name: "Snow", icon: "snow-outline", key: "snow" } : code >= 51 ? { name: "Rain", icon: "rainy-outline", key: "rain" } : { name: "Fog", icon: "cloud-outline", key: "partly" };
-const TIP: Record<string, string> = { rain: "Rain is expected. Check that your gutters and drainage outlets are clear of leaves and debris.", thunder: "Thunderstorms in the area. Keep clear of the structure during lightning and consider switching off mounted electrical accessories at the source.", snow: "Snow is expected. Follow your manufacturer's snow-load and roof-operation guidance; clear accumulation only as they advise.", windy: "Strong winds are forecast. Retract zip screens before gusts arrive and follow your manufacturer's guidance.", sunny: "Sunny days ahead. Check that your screens are clean and operating smoothly.", partly: "Mild conditions. A good time for a quick visual check of louvers, gutters and fixings." };
 
 export default function HomeScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootParams>>();
   const { user } = useSession();
   const { c, dark, mode, setMode } = useTheme();
+  const content = useContent(); const TIP = content.care_tips; const promo = content.home_promo;
   const [jobs, setJobs] = useState<Job[]>([]); const [pergolas, setPergolas] = useState<Pergola[]>([]); const [draft, setDraft] = useState<Draft | null>(null); const [unread, setUnread] = useState(0);
   const [wx, setWx] = useState<Wx | null>(null); const [wxIdx, setWxIdx] = useState(0);
 
@@ -131,11 +132,11 @@ export default function HomeScreen() {
           </View>
         )}
 
-        <Pressable onPress={() => nav.navigate("Tabs", { screen: "MrCare" } as never)} style={{ borderRadius: 16, backgroundColor: c.hero, padding: 18, gap: 12, overflow: "hidden" }}>
+        {promo.enabled !== false && <Pressable onPress={() => nav.navigate("Tabs", { screen: "MrCare" } as never)} style={{ borderRadius: 16, backgroundColor: c.hero, padding: 18, gap: 12, overflow: "hidden" }}>
           <View style={{ position: "absolute", right: -50, top: -50, width: 160, height: 160, borderRadius: 80, backgroundColor: c.primary }} />
-          <View style={{ gap: 4 }}><RNText style={S(12, "700", "#F7A26B")}>Limited offer</RNText><RNText style={S(22, "800", "#fff")}>50% off care plans</RNText><RNText style={S(12.5, "400", "#D5D7DA")}>Members offer · this season</RNText></View>
-          <View style={{ alignSelf: "flex-start", height: 36, paddingHorizontal: 14, borderRadius: 10, backgroundColor: "#fff", justifyContent: "center" }}><RNText style={S(13, "600", "#181D27")}>View MrCare plans</RNText></View>
-        </Pressable>
+          <View style={{ gap: 4 }}><RNText style={S(12, "700", "#F7A26B")}>{promo.label}</RNText><RNText style={S(22, "800", "#fff")}>{promo.title}</RNText><RNText style={S(12.5, "400", "#D5D7DA")}>{promo.sub}</RNText></View>
+          <View style={{ alignSelf: "flex-start", height: 36, paddingHorizontal: 14, borderRadius: 10, backgroundColor: "#fff", justifyContent: "center" }}><RNText style={S(13, "600", "#181D27")}>{promo.cta}</RNText></View>
+        </Pressable>}
 
         <View style={{ gap: 10 }}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><RNText style={S(16, "700")}>My requests</RNText>{jobs.length > 0 && <Pressable onPress={() => nav.navigate("Tabs", { screen: "Requests" } as never)}><RNText style={S(13, "600", c.primary)}>See all</RNText></Pressable>}</View>

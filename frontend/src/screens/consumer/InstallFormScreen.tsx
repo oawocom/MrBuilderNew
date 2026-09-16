@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Field, PrimaryButton } from "../../components/form";
 import { ChoiceRow, Header, Note, PickerSheet, Section, SelectField, Sheet } from "../../components/sheet";
 import { STATES, specPayload, useRequestDraft } from "../../state/requestDraft";
+import { useContent } from "../../state/content";
 import { useTheme } from "../../theme/ThemeProvider";
 import { font } from "../../theme/tokens";
 import { api } from "../../api/client";
@@ -19,6 +20,8 @@ const PROPS = ["Residential", "Commercial", "HOA / community", "Government"];
 export default function InstallFormScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootParams>>();
   const { pergolas, remove, reset } = useRequestDraft();
+  const content = useContent();
+  const encCodes = Object.fromEntries(content.enclosure_types.map((x) => [x.label, x.code])), accCodes = Object.fromEntries(content.accessories.map((x) => [x.label, x.code]));
   const { c } = useTheme();
   const [f, setF] = useState({ street: "", city: "", state: "", zip: "", prop: "", start: "", end: "", notes: "" });
   const [pick, setPick] = useState<null | "state" | "prop">(null);
@@ -45,7 +48,7 @@ export default function InstallFormScreen() {
     setBusy(true);
     const ids: string[] = [];
     for (const p of pergolas) {
-      const r = await api<{ id: string }>("/jobs", { method: "POST", body: { service_category: "installation", quote_method: method === "ai" ? "instant" : "inspection", location_address: f.street, location_city: f.city, location_state: f.state, location_zip: f.zip || undefined, property_type: f.prop ? f.prop.split(" ")[0].toLowerCase() : "residential", preferred_start_date: f.start || undefined, preferred_end_date: f.end || undefined, notes: f.notes || undefined, ...specPayload(p) } });
+      const r = await api<{ id: string }>("/jobs", { method: "POST", body: { service_category: "installation", quote_method: method === "ai" ? "instant" : "inspection", location_address: f.street, location_city: f.city, location_state: f.state, location_zip: f.zip || undefined, property_type: f.prop ? f.prop.split(" ")[0].toLowerCase() : "residential", preferred_start_date: f.start || undefined, preferred_end_date: f.end || undefined, notes: f.notes || undefined, ...specPayload(p, encCodes, accCodes) } });
       if (!r.success || !r.data) { setBusy(false); Alert.alert("Couldn't submit", r.error ?? "Try again"); return; }
       ids.push(r.data.id);
     }

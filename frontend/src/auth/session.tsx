@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
 import { api, tokens, User, APP_VARIANT } from "../api/client";
+import { registerPush, unregisterPush } from "../push/push";
 
 interface Session {
   user: User | null; ready: boolean; error: string | null;
@@ -26,7 +27,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       tokens.setUnauthorizedHandler(async () => { await tokens.clear(); setUser(null); });
       const t = await tokens.load();
       const cached = await SecureStore.getItemAsync("mrb_user");
-      if (t && cached) { setUser(JSON.parse(cached)); refreshUser(); }
+      if (t && cached) { setUser(JSON.parse(cached)); refreshUser(); registerPush(); }
       setReady(true);
     })();
   }, [refreshUser]);
@@ -37,7 +38,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     if (APP_VARIANT === "consumer" && r.data.user.role === "contractor") return "You're a PRO — please use the MrBuilder PRO app.";
     await tokens.set(r.data.access_token, r.data.refresh_token);
     await SecureStore.setItemAsync("mrb_user", JSON.stringify(r.data.user));
-    setUser(r.data.user); setError(null);
+    setUser(r.data.user); setError(null); registerPush();
     return null;
   }
 
@@ -48,6 +49,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     return finish(r);
   };
   const logout = async () => {
+    await unregisterPush();
     const rt = await SecureStore.getItemAsync("mrb_refresh");
     if (rt) api("/logout", { method: "POST", body: { refresh_token: rt } });
     await tokens.clear(); await SecureStore.deleteItemAsync("mrb_user"); setUser(null);

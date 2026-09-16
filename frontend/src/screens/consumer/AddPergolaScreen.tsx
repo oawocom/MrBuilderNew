@@ -6,7 +6,8 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Field, PrimaryButton, SecondaryButton } from "../../components/form";
 import { ChoiceRow, Header, Note, PickerSheet, Section, SelectField, Toggle } from "../../components/sheet";
-import { ACCESSORIES, BRANDS, ENCLOSURE_TYPES, Enclosure, PERGOLA_TYPES, PergolaSpec, emptyPergola, useRequestDraft } from "../../state/requestDraft";
+import { Enclosure, PergolaSpec, emptyPergola, useRequestDraft } from "../../state/requestDraft";
+import { useContent } from "../../state/content";
 import { useTheme } from "../../theme/ThemeProvider";
 import { font } from "../../theme/tokens";
 import { uploadFile } from "../../api/client";
@@ -15,6 +16,8 @@ export default function AddPergolaScreen() {
   const nav = useNavigation();
   const { params } = useRoute<{ key: string; name: string; params: { key?: string } }>();
   const { pergolas, upsert } = useRequestDraft();
+  const content = useContent();
+  const PERGOLA_TYPES = content.pergola_types, BRANDS = content.brands, ENCLOSURE_TYPES = content.enclosure_types.map((x) => x.label), ACCESSORIES = content.accessories.map((x) => x.label);
   const { c } = useTheme();
   const [p, setP] = useState<PergolaSpec>(() => pergolas.find((x) => x.key === params?.key) ?? emptyPergola());
   const [pick, setPick] = useState<null | "type" | "brand" | "encType">(null);
