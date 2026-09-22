@@ -32,14 +32,36 @@
       "env": {
         "APP_VARIANT": "consumer"
       },
-      "autoIncrement": true
+      "autoIncrement": true,
+      "credentialsSource": "local"
     },
     "contractor": {
       "extends": "base",
       "env": {
         "APP_VARIANT": "contractor"
       },
-      "autoIncrement": true
+      "autoIncrement": true,
+      "credentialsSource": "local"
+    }
+  },
+  "submit": {
+    "consumer": {
+      "ios": {
+        "ascApiKeyPath": "credentials/AuthKey_7TB7V5G8ZQ.p8",
+        "ascApiKeyIssuerId": "f2be40a4-9ac8-49c8-878e-4dd8f8255b99",
+        "ascApiKeyId": "7TB7V5G8ZQ",
+        "appleTeamId": "6JUFSWUS4Y",
+        "ascAppId": "6814769823"
+      }
+    },
+    "contractor": {
+      "ios": {
+        "ascApiKeyPath": "credentials/AuthKey_7TB7V5G8ZQ.p8",
+        "ascApiKeyIssuerId": "f2be40a4-9ac8-49c8-878e-4dd8f8255b99",
+        "ascApiKeyId": "7TB7V5G8ZQ",
+        "appleTeamId": "6JUFSWUS4Y",
+        "ascAppId": "6814770873"
+      }
     }
   }
 }
