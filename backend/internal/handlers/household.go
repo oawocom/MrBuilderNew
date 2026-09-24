@@ -160,7 +160,7 @@ func (h *HouseholdHandler) Invite(c *gin.Context) {
 	if memberID != nil {
 		notify(h.DB, *memberID, "household_invite", partyName(h.DB, &userID)+" invited you to their household", "Accept to see and help with their pergola requests", "", "household", gin.H{"invite_token": token, "membership_id": id})
 	}
-	base := GetSettingString(h.DB, "web_base_url", "https://new.mrbuilder.com")
+	base := GetSettingString(h.DB, "web_base_url", "https://mrbuilder.com")
 	link := base + "/register?invite=" + token
 	inviter := partyName(h.DB, &userID)
 	if req.Email != nil {

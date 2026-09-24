@@ -27,7 +27,7 @@ func publicBase() string {
 	if b := os.Getenv("PUBLIC_BASE_URL"); b != "" {
 		return strings.TrimRight(b, "/")
 	}
-	return "https://new.mrbuilder.com"
+	return "https://mrbuilder.com"
 }
 func uploadSig(id string) string {
 	m := hmac.New(sha256.New, []byte(os.Getenv("JWT_SECRET")+"upload"))
