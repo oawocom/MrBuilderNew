@@ -22,6 +22,7 @@ const adminItems = [
   { label: "Warranties", href: "/manage/warranties", icon: "check" },
   { label: "Waitlist", href: "/manage/waitlist", icon: "clock" },
   { label: "Partners", href: "/manage/partners", icon: "user" },
+  { label: "App content", href: "/manage/content", icon: "file" },
   { label: "Team", href: "/manage/team", icon: "user" },
 ];
 
