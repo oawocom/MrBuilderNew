@@ -70,6 +70,7 @@ func (h *LeadsHandler) Create(c *gin.Context) {
 			}
 		}
 	}
+	QueueEmail(h.DB, "", email, "lead_received", map[string]string{"name": name, "link": publicBase()}, nil, "", "")
 	utils.Success(c, http.StatusCreated, "Saved", gin.H{"id": id})
 }
 

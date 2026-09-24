@@ -26,6 +26,8 @@ func Setup(r *gin.Engine, db *sql.DB, jwtSecret string) {
 	mrcare := handlers.NewMrCareHandler(db)
 	store := handlers.NewStoreHandler(db)
 	leadsH := &handlers.LeadsHandler{DB: db}
+	emailH := &handlers.EmailAdminHandler{DB: db}
+	handlers.StartEmailWorker(db)
 	hh := handlers.NewHouseholdHandler(db)
 	integ := handlers.NewIntegrationsHandler(db)
 	payments := handlers.NewPaymentsHandler(db)
@@ -49,6 +51,7 @@ func Setup(r *gin.Engine, db *sql.DB, jwtSecret string) {
 		api.GET("/public/documents/:token", hh.PublicDocument)
 		api.GET("/content", training.Content)
 		api.POST("/leads", leadsH.Create)
+		api.GET("/emails/preview", emailH.Preview)
 		api.PUT("/uploads/put/:id", integ.PutLocalUpload)
 		api.GET("/legal/:kind", training.Legal)
 		api.POST("/auth/oauth", auth.OAuth)
@@ -271,6 +274,10 @@ func Setup(r *gin.Engine, db *sql.DB, jwtSecret string) {
 				adm.PATCH("/waitlist/:id/activate", admin.ActivateWaitlist)
 				adm.GET("/system", admin.SystemInfo)
 				adm.GET("/leads", leadsH.AdminList)
+				adm.GET("/emails/templates", emailH.List)
+				adm.PUT("/emails/templates", emailH.Save)
+				adm.POST("/emails/test", emailH.SendTest)
+				adm.GET("/emails/outbox", emailH.Outbox)
 				adm.PATCH("/leads/:id", leadsH.AdminUpdate)
 				adm.GET("/settings", settings.AdminList)
 				adm.PUT("/settings", settings.Update)

@@ -62,6 +62,7 @@ func notify(db execer, userID, ntype, title, body, jobID, screen string, params 
         VALUES ($1,$2,$3,$4,$5,$6::jsonb) RETURNING id`, userID, ntype, title, body, job, toJSON(data)).Scan(&id)
 	if pushDB != nil && id != "" {
 		go deliverPush(id, userID, title, body, data)
+		go queueForNotification(pushDB, userID, ntype, title, body, jobID, params)
 	}
 }
 

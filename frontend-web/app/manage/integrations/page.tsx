@@ -11,7 +11,7 @@ const titles: Record<string, [string, string]> = {
   stripe: ["Stripe", "Card payments, contractor payouts (Connect), subscriptions, store"],
   smtp: ["Email (SMTP)", "OTP codes, receipts, household invites"],
   twilio: ["SMS (Twilio)", "OTP codes and urgent job alerts"],
-  storage: ["File storage (S3-compatible)", "Photos, evidence, documents, product images — DigitalOcean Spaces, AWS S3, Cloudflare R2"],
+  storage: ["File storage (S3-compatible)", "Photos, evidence, documents, product images — DigitalOcean Spaces, AWS S3, Cloudflare R2. Off = files are stored on the MrBuilder server (default)."],
   google_oauth: ["Google sign-in", "OAuth client IDs for iOS, Android and web"],
   apple_oauth: ["Apple sign-in", "Service ID, Team ID, Key ID and the .p8 private key"],
   push: ["Push notifications", "Expo push service (no key needed) — optional access token"],

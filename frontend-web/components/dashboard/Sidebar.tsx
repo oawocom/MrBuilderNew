@@ -24,6 +24,7 @@ const adminItems = [
   { label: "Partners", href: "/manage/partners", icon: "user" },
   { label: "App content", href: "/manage/content", icon: "file" },
   { label: "Website leads", href: "/manage/leads", icon: "mail" },
+  { label: "Email templates", href: "/manage/emails", icon: "mail" },
   { label: "Team", href: "/manage/team", icon: "user" },
 ];
 

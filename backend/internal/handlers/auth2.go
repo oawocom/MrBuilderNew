@@ -217,6 +217,7 @@ func sendOTP(db *sql.DB, userID *string, channel, to, purpose string) error {
 	if _, err := db.Exec(`INSERT INTO otp_codes (user_id, phone, email, code, purpose, expires_at) VALUES ($1,$2,$3,$4,$5,NOW() + INTERVAL '15 minutes')`, uid, phone, email, code, purpose); err != nil {
 		return err
 	}
+	base0 := GetSettingString(db, "web_base_url", "https://new.mrbuilder.com")
 	msg := "Your MrBuilder code is " + code + ". It expires in 15 minutes."
 	if purpose == "reset" {
 		base := GetSettingString(db, "web_base_url", "https://new.mrbuilder.com")
@@ -224,6 +225,9 @@ func sendOTP(db *sql.DB, userID *string, channel, to, purpose string) error {
 	}
 	if channel == "sms" {
 		return integrations.SendSMS(to, msg)
+	}
+	if subj, body, ok := RenderEmail(db, "verification_code", map[string]string{"link": base0 + "/reset?email=" + to + "&code=" + code}, nil, code, msg); ok {
+		return integrations.SendEmail(to, subj, body)
 	}
 	return integrations.SendEmail(to, "Your MrBuilder verification code", "<p>"+msg+"</p>")
 }
