@@ -212,7 +212,7 @@ func (h *PaymentsHandler) ConnectOnboard(c *gin.Context) {
 		acct = &id
 		h.DB.Exec(`UPDATE contractor_profiles SET stripe_account_id=$1 WHERE user_id=$2`, id, userID)
 	}
-	base := GetSettingString(h.DB, "web_base_url", "https://new.mrbuilder.com")
+	base := GetSettingString(h.DB, "web_base_url", "https://mrbuilder.com")
 	out, err := integrations.StripeRequest("POST", "/v1/account_links", url.Values{"account": {*acct}, "type": {"account_onboarding"}, "refresh_url": {base + "/profile/contractor?connect=refresh"}, "return_url": {base + "/profile/contractor?connect=done"}})
 	if err != nil {
 		utils.Error(c, http.StatusBadGateway, err.Error())

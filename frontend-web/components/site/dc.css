@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+.dc{margin:0;font-family:Inter,system-ui,sans-serif;color:#181D27;-webkit-font-smoothing:antialiased}
+.dc a{color:#EF6820;text-decoration:none}
+.dc a:hover{color:#C4561A}
+.dc *{box-sizing:border-box}
+@keyframes mrbHdrIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@keyframes mrbMenuIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes dmTap{0%{transform:translate(-50%,-50%) scale(.35);opacity:0}30%{opacity:.9}100%{transform:translate(-50%,-50%) scale(1.6);opacity:0}}
+@keyframes dmIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
+@keyframes dmCaret{0%,49%{opacity:1}50%,100%{opacity:0}}
+@keyframes jhPulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.2);opacity:0}}
+@keyframes jhDash{to{stroke-dashoffset:-24}}
+.dc input::placeholder,.dc textarea::placeholder{color:#A4A7AE;opacity:1}
+@keyframes qfSpin{to{transform:rotate(360deg)}}
+@keyframes qfIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.dc{margin:0;background:#fff;font-family:Inter,system-ui,sans-serif;color:#181D27;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth}
+@keyframes mrbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}

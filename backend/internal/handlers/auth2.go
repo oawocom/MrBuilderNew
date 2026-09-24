@@ -217,10 +217,10 @@ func sendOTP(db *sql.DB, userID *string, channel, to, purpose string) error {
 	if _, err := db.Exec(`INSERT INTO otp_codes (user_id, phone, email, code, purpose, expires_at) VALUES ($1,$2,$3,$4,$5,NOW() + INTERVAL '15 minutes')`, uid, phone, email, code, purpose); err != nil {
 		return err
 	}
-	base0 := GetSettingString(db, "web_base_url", "https://new.mrbuilder.com")
+	base0 := GetSettingString(db, "web_base_url", "https://mrbuilder.com")
 	msg := "Your MrBuilder code is " + code + ". It expires in 15 minutes."
 	if purpose == "reset" {
-		base := GetSettingString(db, "web_base_url", "https://new.mrbuilder.com")
+		base := GetSettingString(db, "web_base_url", "https://mrbuilder.com")
 		msg = "Reset your MrBuilder password with code " + code + " or open " + base + "/reset?email=" + to + "&code=" + code
 	}
 	if channel == "sms" {
