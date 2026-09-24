@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://new.mrbuilder.com";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://mrbuilder.com";
 export function siteMeta(title: string, description: string, path = "/"): Metadata {
   const url = SITE_URL + (path === "//" ? "/" : path);
   return {
