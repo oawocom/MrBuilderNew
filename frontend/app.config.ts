@@ -18,7 +18,7 @@ const config: ExpoConfig = {
   plugins: ["expo-secure-store", "expo-font", "expo-location", "expo-image-picker", "expo-notifications"],
   runtimeVersion: { policy: "appVersion" },
   updates: { url: (process.env.EAS_PROJECT_ID ?? "f511be99-288d-4634-9ab5-5fd156589a4d") ? `https://u.expo.dev/${(process.env.EAS_PROJECT_ID ?? "f511be99-288d-4634-9ab5-5fd156589a4d")}` : undefined },
-  extra: { variant, apiUrl: process.env.API_URL ?? "https://new.mrbuilder.com/api/v1", eas: { projectId: (process.env.EAS_PROJECT_ID ?? "f511be99-288d-4634-9ab5-5fd156589a4d") } },
+  extra: { variant, apiUrl: process.env.API_URL ?? "https://mrbuilder.com/api/v1", eas: { projectId: (process.env.EAS_PROJECT_ID ?? "f511be99-288d-4634-9ab5-5fd156589a4d") } },
 };
 
 export default config;
