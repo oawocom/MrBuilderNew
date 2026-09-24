@@ -49,6 +49,7 @@ func Setup(r *gin.Engine, db *sql.DB, jwtSecret string) {
 		api.GET("/public/documents/:token", hh.PublicDocument)
 		api.GET("/content", training.Content)
 		api.POST("/leads", leadsH.Create)
+		api.PUT("/uploads/put/:id", integ.PutLocalUpload)
 		api.GET("/legal/:kind", training.Legal)
 		api.POST("/auth/oauth", auth.OAuth)
 		api.POST("/auth/forgot", auth.Forgot)

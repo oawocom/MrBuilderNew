@@ -195,13 +195,19 @@ func (h *IntegrationsHandler) CreateUpload(c *gin.Context) {
 	ext := strings.ToLower(path.Ext(req.Filename))
 	key := fmt.Sprintf("%s/%s/%d-%s%s", req.Purpose, userID[:8], time.Now().UnixNano(), strings.TrimSuffix(randomToken(4), ""), ext)
 	uploadURL, publicURL, err := integrations.PresignUpload(key, req.ContentType)
-	if err != nil {
-		utils.Error(c, http.StatusServiceUnavailable, "Storage not available: "+err.Error())
-		return
-	}
 	var id string
-	h.DB.QueryRow(`INSERT INTO uploads (user_id, purpose, object_key, public_url, content_type, size_bytes) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-		userID, req.Purpose, key, publicURL, req.ContentType, req.SizeBytes).Scan(&id)
+	if err != nil { // no S3 configured → store on our own server
+		if e := h.DB.QueryRow(`INSERT INTO uploads (user_id, purpose, object_key, public_url, content_type, size_bytes) VALUES ($1,$2,$3,'',$4,$5) RETURNING id`,
+			userID, req.Purpose, key, req.ContentType, req.SizeBytes).Scan(&id); e != nil {
+			utils.Error(c, http.StatusInternalServerError, "Could not register upload")
+			return
+		}
+		uploadURL, publicURL = localUploadURLs(id, key)
+		h.DB.Exec(`UPDATE uploads SET public_url=$2 WHERE id=$1`, id, publicURL)
+	} else {
+		h.DB.QueryRow(`INSERT INTO uploads (user_id, purpose, object_key, public_url, content_type, size_bytes) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+			userID, req.Purpose, key, publicURL, req.ContentType, req.SizeBytes).Scan(&id)
+	}
 	utils.Success(c, http.StatusCreated, "", gin.H{"id": id, "upload_url": uploadURL, "method": "PUT", "headers": gin.H{"Content-Type": req.ContentType}, "public_url": publicURL, "expires_in": 900})
 }
 
