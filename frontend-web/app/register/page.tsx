@@ -41,9 +41,9 @@ export default function RegisterPage() {
 
   const input = "w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none";
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-        <Link href="/" className="mb-6 block text-center text-xl font-bold text-brand-600">MrBuilder</Link>
+    <main>
+      <div className="w-full rounded-[24px] bg-white p-8 shadow-[0_20px_50px_-30px_rgba(24,29,39,.25)] ring-1 ring-black/[.04]">
+        
         <h1 className="text-2xl font-semibold text-gray-900">Create your account</h1>
         <p className="mt-1 text-sm text-gray-600">America's pergola platform — installation, repair, maintenance.</p>
 
@@ -64,7 +64,7 @@ export default function RegisterPage() {
           <input className={input} type="tel" placeholder="Mobile phone (+1…)" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
           <input className={input} type="password" placeholder="Password (8+ characters)" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} required />
           <input className={input} type="password" placeholder="Confirm password" value={f.confirm} onChange={(e) => setF({ ...f, confirm: e.target.value })} required />
-          <label className="flex items-start gap-2 text-xs text-gray-600"><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5" /> I agree to the <Link href="/tos" className="underline">Terms of Service</Link> and Privacy Policy.</label>
+          <label className="flex items-start gap-2 text-xs text-gray-600"><input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5" /> I agree to the <Link href="/legal/terms" target="_blank" className="underline">Terms of Service</Link> and <a href="/legal/privacy" target="_blank" className="underline">Privacy Policy</a>.</label>
           {err && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{err}</p>}
           <button disabled={busy} className="w-full rounded-lg bg-brand-600 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50">{busy ? "Creating…" : "Create account"}</button>
         </form>

@@ -1,0 +1,8 @@
+export function AppBadges({ links, app = "consumer", column = false }: { links: Record<string, string>; app?: "consumer" | "contractor"; column?: boolean }) {
+  const ios = links[`${app}_ios`], android = links[`${app}_android`];
+  const Badge = ({ href, label, icon }: { href: string; label: string; icon: React.ReactNode }) => href ? <a href={href} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-2 rounded-lg bg-[#181D27] px-3 text-white"><span className="text-white">{icon}</span><span className="text-[13px] font-semibold">{label}</span></a> : <span title="Coming soon" className="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 text-gray-500"><span>{icon}</span><span className="text-[13px] font-semibold">{label}</span><span className="rounded-full bg-gray-100 px-1.5 text-[10px] font-bold uppercase text-gray-500">Soon</span></span>;
+  return <div className={`flex ${column ? "flex-col items-start" : "flex-wrap"} gap-2`}>
+    <Badge href={ios} label="App Store" icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9-1.2-1.8-3.1-2-3.7-2-1.6-.2-3.1.9-3.9.9-.8 0-2-.9-3.4-.9-1.7 0-3.3 1-4.2 2.6-1.8 3.1-.5 7.8 1.3 10.3.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.4.8c1.4 0 2.3-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.7-1-2.7-4.2zM13.9 4.9c.7-.9 1.2-2.1 1-3.3-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.2 1.2.1 2.4-.6 3.1-1.5z" /></svg>} />
+    <Badge href={android} label="Google Play" icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 2.5v19l10-9.5L3 2.5zm11.4 8.1L5.6 1.7l10.6 6.2-1.8 2.7zm0 2.8l1.8 2.7L5.6 22.3l8.8-8.9zm2.2-1.4l3.6 2.1c.8.5.8 1.3 0 1.8l-3.6 2.1L14.6 12l2-2z" /></svg>} />
+  </div>;
+}

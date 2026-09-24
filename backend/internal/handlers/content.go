@@ -10,7 +10,7 @@ import (
 	"github.com/mrbuilder/backend/internal/utils"
 )
 
-var contentKeys = []string{"catalog_pergola_types", "catalog_brands", "catalog_enclosure_types", "catalog_accessories", "catalog_pergola_systems", "catalog_electronics_devices", "content_home_promo", "content_care_tips", "content_faq_pro", "content_support"}
+var contentKeys = []string{"catalog_pergola_types", "catalog_brands", "catalog_enclosure_types", "catalog_accessories", "catalog_pergola_systems", "catalog_electronics_devices", "content_home_promo", "content_care_tips", "content_faq_pro", "content_support", "content_app_links", "content_company"}
 
 // GET /content — public bundle of catalogue lists and copy for the apps
 func (h *TrainingHandler) Content(c *gin.Context) {

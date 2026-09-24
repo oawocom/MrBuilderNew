@@ -25,9 +25,9 @@ export default function LoginPage() {
 
   const input = "w-full rounded-lg border border-gray-300 px-3.5 py-2.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none";
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-        <Link href="/" className="mb-6 block text-center text-xl font-bold text-brand-600">MrBuilder</Link>
+    <main>
+      <div className="w-full rounded-[24px] bg-white p-8 shadow-[0_20px_50px_-30px_rgba(24,29,39,.25)] ring-1 ring-black/[.04]">
+        
         <h1 className="text-2xl font-semibold text-gray-900">Welcome back</h1>
         <form onSubmit={submit} className="mt-6 space-y-4">
           <input className={input} type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
