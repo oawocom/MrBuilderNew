@@ -26,7 +26,7 @@ export default function DocumentsScreen() {
     if (d.type === "completion_photos" && Array.isArray(d.payload.photos)) { nav.navigate("Gallery", { photos: (d.payload.photos as string[]).map((u) => ({ url: u, label: "Completion" })) }); return; }
     if (d.url) { Linking.openURL(d.url); return; }
     const r = await api<{ path: string }>(`/documents/${d.id}/share`, { method: "POST", body: {} });
-    if (r.data) Linking.openURL(`https://new.mrbuilder.com${r.data.path}`); else Alert.alert("Not available", "This document has no file yet.");
+    if (r.data) Linking.openURL(`https://mrbuilder.com${r.data.path}`); else Alert.alert("Not available", "This document has no file yet.");
   }
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>

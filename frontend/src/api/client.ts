@@ -1,7 +1,7 @@
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
-export const API_URL: string = Constants.expoConfig?.extra?.apiUrl ?? "https://new.mrbuilder.com/api/v1";
+export const API_URL: string = Constants.expoConfig?.extra?.apiUrl ?? "https://mrbuilder.com/api/v1";
 export const APP_VARIANT: "consumer" | "contractor" = Constants.expoConfig?.extra?.variant ?? "consumer";
 
 export interface ApiResponse<T> { success: boolean; message?: string; error?: string; data?: T; meta?: { total?: number; page?: number; limit?: number; locked?: boolean; unread?: number }; missing?: string[] }

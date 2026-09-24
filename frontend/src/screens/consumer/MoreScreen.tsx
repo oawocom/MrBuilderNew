@@ -47,7 +47,7 @@ export default function MoreScreen() {
       <Sheet open={refOpen} onClose={() => setRefOpen(false)} title="Refer a neighbor">
         <RNText style={{ ...S(14, "400", c.text3), marginTop: -8 }}>{ref?.reward ?? "They get their first inspection free; you get a credit on your next job."}</RNText>
         <View style={{ padding: 14, borderRadius: 12, backgroundColor: c.surface2, alignItems: "center", gap: 4 }}><RNText style={S(12, "600", c.text4)}>YOUR CODE</RNText><RNText style={{ ...S(24, "700"), letterSpacing: 2 }}>{ref?.code ?? "—"}</RNText>{!!ref?.referred && <RNText style={S(12.5, "400", c.text4)}>{ref.referred} neighbor{ref.referred > 1 ? "s" : ""} joined so far</RNText>}</View>
-        <PrimaryButton title="Share invite" icon="share-outline" onPress={() => Share.share({ message: `Get your pergola installed or repaired with MrBuilder — instant quotes, trained PROs. Use my code ${ref?.code} ${ref?.link ?? "https://new.mrbuilder.com/register?ref=" + ref?.code}` })} /><SecondaryButton title="Close" onPress={() => setRefOpen(false)} />
+        <PrimaryButton title="Share invite" icon="share-outline" onPress={() => Share.share({ message: `Get your pergola installed or repaired with MrBuilder — instant quotes, trained PROs. Use my code ${ref?.code} ${ref?.link ?? "https://mrbuilder.com/register?ref=" + ref?.code}` })} /><SecondaryButton title="Close" onPress={() => setRefOpen(false)} />
       </Sheet>
     </SafeAreaView>
   );
