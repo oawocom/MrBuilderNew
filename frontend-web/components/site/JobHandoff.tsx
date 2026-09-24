@@ -1,34 +1,56 @@
 "use client";
 
+// Port of the client's "Job Handoff": consumer demo + connector lane + contractor demo on one 23-second clock.
 import { useEffect, useRef, useState } from "react";
+import { AppDemo } from "./AppDemo";
 
-// Home: one request travelling consumer → MrBuilder → contractor, and "Accepted" coming back. 4 beats on a shared clock.
-const BEATS = [
-  { c: "/site/screens/c-install-form.webp", k: "/site/screens/k-marketplace.webp", chip: null, text: "The homeowner fills in the installation request." },
-  { c: "/site/screens/c-quote.webp", k: "/site/screens/k-marketplace.webp", chip: { label: "Installation request", dir: "right" as const }, text: "MrBuilder prices it and the approved job goes to the marketplace." },
-  { c: "/site/screens/c-awaiting.webp", k: "/site/screens/k-accept-modal.webp", chip: null, text: "A vetted contractor reviews scope, dates and payment — and accepts." },
-  { c: "/site/screens/c-assigned.webp", k: "/site/screens/k-job-accepted.webp", chip: { label: "Accepted", dir: "left" as const }, text: "Both sides see the same status: Contractor assigned · Accepted." },
-];
+const TOTAL = 23000;
+const CAPS = ["The homeowner describes the pergola and asks for a quote.", "MrBuilder prices it instantly. The homeowner reviews and submits the request.", "The request is routed through MrBuilder to contractors nearby. It appears as a new job in Mike's marketplace.", "Mike reviews the scope, dates and payment, and accepts.", 'Both sides now see the same job: "Contractor assigned" for the homeowner, "Accepted" for Mike.'];
 
 export function JobHandoff() {
-  const [i, setI] = useState(0); const ref = useRef<HTMLDivElement>(null); const vis = useRef(true);
-  useEffect(() => { const el = ref.current; if (!el) return; const io = new IntersectionObserver(([e]) => { vis.current = e.isIntersecting; }, { threshold: 0.3 }); io.observe(el); return () => io.disconnect(); }, []);
-  useEffect(() => { const t = setInterval(() => { if (vis.current && !document.hidden) setI((x) => (x + 1) % BEATS.length); }, 4200); return () => clearInterval(t); }, []);
-  const b = BEATS[i];
-  const Frame = ({ src, label }: { src: string; label: string }) => <div className="flex flex-col items-center"><div className="relative w-[220px] rounded-[32px] border-[5px] border-[#181D27] bg-[#181D27] shadow-[0_24px_60px_-20px_rgba(24,29,39,.45)]"><div className="h-[440px] overflow-hidden rounded-[27px] bg-white"><img src={src} alt={label} className="w-full transition-opacity duration-500" /></div></div><div className="mt-3 text-[13px] font-semibold text-gray-600">{label}</div></div>;
+  const root = useRef<HTMLDivElement>(null);
+  const [clock, setClock] = useState(0); const [w, setW] = useState(1200);
+  const t0 = useRef(0), elapsed = useRef(0), playing = useRef(false), iv = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(() => {
+    const onR = () => setW(root.current ? root.current.getBoundingClientRect().width : window.innerWidth); onR(); window.addEventListener("resize", onR);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setClock(19000); return () => window.removeEventListener("resize", onR); }
+    const pause = () => { if (!playing.current) return; playing.current = false; if (iv.current) clearInterval(iv.current); elapsed.current = (performance.now() - t0.current) % TOTAL; };
+    const resume = () => { if (playing.current) return; playing.current = true; t0.current = performance.now() - elapsed.current; iv.current = setInterval(() => setClock((performance.now() - t0.current) % TOTAL), 45); };
+    const el = root.current; let io: IntersectionObserver | null = null;
+    if (el && "IntersectionObserver" in window) { io = new IntersectionObserver((es) => { if (es[0].isIntersecting) resume(); else pause(); }, { threshold: 0.2 }); io.observe(el); } else resume();
+    const onVis = () => { if (document.hidden) pause(); else resume(); }; document.addEventListener("visibilitychange", onVis);
+    return () => { pause(); io?.disconnect(); window.removeEventListener("resize", onR); document.removeEventListener("visibilitychange", onVis); };
+  }, []);
+  const c = clock, wide = w >= 720;
+  const seg = (t: number, a: number, b: number) => Math.max(0, Math.min(1, (t - a) / (b - a)));
+  const ease = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
+  const pos = (p: number) => (wide ? { x: (-6 + p * 112).toFixed(2) + "%", y: "50%" } : { x: "50%", y: (-6 + p * 112).toFixed(2) + "%" });
+  const sendP = ease(seg(c, 10400, 12400)), ackP = 1 - ease(seg(c, 17600, 19600));
+  const showSend = c >= 10300 && c < 12600, showAck = c >= 17500 && c < 19800;
+  const fadeIn = (t: number, a: number) => Math.min(1, Math.max(0, (t - a) / 250)), fadeOut = (t: number, b: number) => Math.min(1, Math.max(0, (b - t) / 250));
+  const sp = pos(sendP), ap = pos(ackP);
+  const hubPulse = (c >= 11300 && c < 12200) || (c >= 18500 && c < 19400);
+  const hubLabel = c < 10400 ? "MrBuilder" : c < 12400 ? "Routing request…" : c < 17600 ? "Offered to nearby pros" : c < 19600 ? "Confirming…" : "Job matched";
+  const phaseIdx = c < 5600 ? 0 : c < 10400 ? 1 : c < 14800 ? 2 : c < 18400 ? 3 : 4;
+  const Chip = ({ show, x, y, scale, opacity, bg, shadow, text, icon }: { show: boolean; x: string; y: string; scale: string; opacity: string; bg: string; shadow: string; text: string; icon: React.ReactNode }) => show ? <div style={{ position: "absolute", left: x, top: y, transform: `translate(-50%,-50%) scale(${scale})`, opacity, padding: "8px 12px", borderRadius: 12, background: bg, color: "#fff", fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", boxShadow: shadow, display: "flex", alignItems: "center", gap: 6 }}>{icon}{text}</div> : null;
   return (
-    <div ref={ref} className="rounded-[28px] bg-[#181D27] p-6 text-white md:p-10">
-      <div className="relative grid items-center gap-6 md:grid-cols-[220px_1fr_220px]">
-        <Frame src={b.c} label="Consumer app" />
-        <div className="relative flex h-[120px] items-center justify-center md:h-[440px]">
-          <div className="absolute inset-x-0 top-1/2 hidden h-px bg-white/15 md:block" />
-          <div className="relative z-10 flex flex-col items-center gap-2"><div className="grid h-16 w-16 place-items-center rounded-2xl bg-white/10 ring-1 ring-white/20"><img src="/site/brand/mrb-mark.png" alt="MrBuilder" className="h-10 w-10" /></div><span className="text-xs font-bold uppercase tracking-wide text-white/60">MrBuilder</span></div>
-          {b.chip && <div key={i} className={`absolute top-1/2 z-20 -translate-y-1/2 rounded-full px-3 py-1.5 text-[13px] font-semibold shadow-lg ${b.chip.dir === "right" ? "animate-[chipR_2.4s_ease-in-out_forwards] bg-[#EF6820] text-white" : "animate-[chipL_2.4s_ease-in-out_forwards] bg-[#ECFDF3] text-[#067647]"}`}>{b.chip.label}</div>}
+    <div ref={root} style={{ width: "100%", display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "flex", flexDirection: wide ? "row" : "column", alignItems: wide ? "flex-start" : "center", justifyContent: "center", gap: wide ? 0 : 8 }}>
+        <div style={{ width: 260, maxWidth: "100%", flex: "0 1 auto", display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}><span style={{ padding: "4px 10px", borderRadius: 999, background: "#FEF6EE", color: "#B93815", fontSize: 12, fontWeight: 700 }}>Homeowner · Consumer app</span><div style={{ width: 260, maxWidth: "100%" }}><AppDemo demo="duo-c" clock={c} compact /></div></div>
+        <div style={{ position: "relative", flex: "0 0 auto", width: wide ? "clamp(200px,26vw,320px)" : 200, height: wide ? 120 : 170, alignSelf: wide ? "flex-start" : "center", marginTop: wide ? "clamp(180px,26vw,300px)" : 0, zIndex: 2 }}>
+          <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}><line x1={wide ? 0 : 50} y1={wide ? 50 : 0} x2={wide ? 100 : 50} y2={wide ? 50 : 100} stroke="#3A4152" strokeWidth="1.2" strokeDasharray="3 3" vectorEffect="non-scaling-stroke" /></svg>
+          <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", width: 56, height: 56, borderRadius: "50%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,.35)", display: "flex", alignItems: "center", justifyContent: "center" }}><img src="/site/brand/mrb-mark.png" alt="Mr. Builder" style={{ width: 34, height: "auto", objectFit: "contain" }} />{hubPulse && <span style={{ position: "absolute", inset: 0, borderRadius: "50%", border: "2px solid #EF6820", animation: "jhPulse .9s ease-out both" }} />}</div>
+          <span style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,36px)", fontSize: 11, fontWeight: 600, color: "#9AA0AB", whiteSpace: "nowrap" }}>{hubLabel}</span>
+          <Chip show={showSend} x={sp.x} y={sp.y} scale={(0.85 + 0.15 * fadeIn(c, 10300)).toFixed(3)} opacity={(fadeIn(c, 10300) * fadeOut(c, 12600)).toFixed(3)} bg="#EF6820" shadow="0 10px 24px rgba(239,104,32,.45)" text="Installation request · $4,500" icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2"><path d="M4 4h16v16H4zM4 9h16" /></svg>} />
+          <Chip show={showAck} x={ap.x} y={ap.y} scale={(0.85 + 0.15 * fadeIn(c, 17500)).toFixed(3)} opacity={(fadeIn(c, 17500) * fadeOut(c, 19800)).toFixed(3)} bg="#067647" shadow="0 10px 24px rgba(6,118,71,.45)" text="Accepted by Mike J." icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6"><path d="M5 12l5 5L20 7" /></svg>} />
         </div>
-        <Frame src={b.k} label="Contractor app" />
+        <div style={{ width: 260, maxWidth: "100%", flex: "0 1 auto", display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}><span style={{ padding: "4px 10px", borderRadius: 999, background: "#262C38", color: "#fff", fontSize: 12, fontWeight: 700 }}>Contractor · Contractor app</span><div style={{ width: 260, maxWidth: "100%" }}><AppDemo demo="duo-k" clock={c} compact /></div></div>
       </div>
-      <div className="mt-6 flex flex-col items-center gap-3 md:flex-row md:justify-between"><p className="text-[15px] text-white/85">{b.text}</p><div className="flex gap-1.5">{BEATS.map((_, k) => <button key={k} onClick={() => setI(k)} className={`h-1.5 rounded-full ${k === i ? "w-6 bg-[#EF6820]" : "w-1.5 bg-white/30"}`} aria-label={`Beat ${k + 1}`} />)}</div></div>
-      <style jsx global>{`@keyframes chipR{0%{left:0;opacity:0}15%{opacity:1}50%{left:50%;transform:translate(-50%,-50%)}85%{opacity:1}100%{left:100%;transform:translate(-100%,-50%);opacity:0}}@keyframes chipL{0%{right:0;opacity:0}15%{opacity:1}50%{right:50%;transform:translate(50%,-50%)}85%{opacity:1}100%{right:100%;transform:translate(100%,-50%);opacity:0}}`}</style>
+      <div style={{ maxWidth: 720, margin: "0 auto", width: "100%", display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 6, width: "100%", maxWidth: 420 }}>{[0, 1, 2, 3, 4].map((k) => <span key={k} style={{ flex: 1, height: 4, borderRadius: 2, background: k < phaseIdx ? "#F7A26B" : k === phaseIdx ? "#EF6820" : "#3A4152" }} />)}</div>
+        <span style={{ fontSize: 15, lineHeight: "22px", fontWeight: 600, color: "#fff", textAlign: "center", minHeight: 44 }}>{CAPS[phaseIdx]}</span>
+      </div>
+      <style jsx global>{`@keyframes jhPulse{0%{transform:scale(1);opacity:.9}100%{transform:scale(1.9);opacity:0}}`}</style>
     </div>
   );
 }
