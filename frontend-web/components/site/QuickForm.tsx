@@ -1,5 +1,5 @@
-"use client";
 // @ts-nocheck
+"use client";
 // Generated from the client's "Quick Form.dc.html" by gen_site.py — do not edit by hand.
 import React, { Fragment } from "react";
 import { DCLogic, Hv } from "./dc";
