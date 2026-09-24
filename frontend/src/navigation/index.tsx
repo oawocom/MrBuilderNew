@@ -71,7 +71,7 @@ import { StoreCartScreen, StoreCheckoutScreen, StoreOrdersScreen, StoreOrderScre
 export type RootParams = {
   Welcome: undefined; Login: undefined; Register: undefined; Forgot: undefined; Otp: { email: string }; Tabs: { screen?: string } | undefined;
   NewRequest: undefined; InstallForm: { draftId?: string }; RepairForm: undefined; Quote: { id: string; others?: number; method: "ai" | "inspector" };
-  RequestDetail: { id: string }; AddPergola: { key?: string }; PergolaDetail: { id: string }; Pergolas: undefined;
+  RequestDetail: { id: string }; AddPergola: { key?: string; persist?: boolean }; PergolaDetail: { id: string }; Pergolas: undefined;
   ReportIssue: { id: string }; Gallery: { photos: { url: string; label?: string; at?: string }[]; index?: number };
   Chats: undefined; Chat: { id: string; title: string; closed?: boolean }; ContractorProfile: { id: string }; Documents: undefined; Household: undefined; Reminders: { pergolaId?: string } | undefined; PaymentMethods: undefined;
   MrCareBuy: { offering: "maintenance" | "electronics" }; SubscriptionDetail: { id: string }; MaintenanceBooking: { subscriptionId: string; pergolaId?: string }; ElectronicsClaim: { subscriptionId: string; pergolaId?: string };

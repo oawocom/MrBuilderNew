@@ -6,15 +6,16 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Field, PrimaryButton, SecondaryButton } from "../../components/form";
 import { ChoiceRow, Header, Note, PickerSheet, Section, SelectField, Toggle } from "../../components/sheet";
-import { Enclosure, PergolaSpec, emptyPergola, useRequestDraft } from "../../state/requestDraft";
+import { Enclosure, PergolaSpec, emptyPergola, specPayload, useRequestDraft } from "../../state/requestDraft";
 import { useContent } from "../../state/content";
+import { api } from "../../api/client";
 import { useTheme } from "../../theme/ThemeProvider";
 import { font } from "../../theme/tokens";
 import { uploadFile } from "../../api/client";
 
 export default function AddPergolaScreen() {
   const nav = useNavigation();
-  const { params } = useRoute<{ key: string; name: string; params: { key?: string } }>();
+  const { params } = useRoute<{ key: string; name: string; params: { key?: string; persist?: boolean } }>();
   const { pergolas, upsert } = useRequestDraft();
   const content = useContent();
   const PERGOLA_TYPES = content.pergola_types, BRANDS = content.brands, ENCLOSURE_TYPES = content.enclosure_types.map((x) => x.label), ACCESSORIES = content.accessories.map((x) => x.label);
@@ -25,7 +26,7 @@ export default function AddPergolaScreen() {
   const [busy, setBusy] = useState(false);
   const unit = p.units;
   const S = (n: number, w: "400" | "500" | "600" | "700" = "400", col = c.text) => ({ fontSize: n, fontFamily: w === "400" ? font.regular : w === "500" ? font.medium : w === "600" ? font.semibold : font.bold, color: col });
-  const Dim = ({ label, k, small }: { label: string; k: "w" | "l" | "h"; small?: boolean }) => (
+  const dim = (label: string, k: "w" | "l" | "h", small?: boolean) => (
     <View style={{ flex: 1, gap: small ? 4 : 6 }}><RNText style={S(small ? 12 : 13, "600", c.text2)}>{label}</RNText><View><TextInput value={ed && small ? ed[k] : p[k]} onChangeText={(v) => (ed && small ? setEd({ ...ed, [k]: v }) : setP({ ...p, [k]: v }))} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={c.text4} style={{ height: small ? 44 : 52, borderRadius: small ? 10 : 12, borderWidth: 1, borderColor: c.border2, backgroundColor: c.surface, paddingLeft: 12, paddingRight: 34, fontFamily: font.regular, fontSize: small ? 14 : 15, color: c.text }} /><RNText style={{ position: "absolute", right: 12, top: small ? 14 : 18, ...S(12, "600", c.text4) }}>{unit}</RNText></View></View>
   );
   const valid = p.type && p.name.trim() && p.w && p.l && p.h;
@@ -41,7 +42,19 @@ export default function AddPergolaScreen() {
     setBusy(false);
     setP({ ...p, photos: [...p.photos, ...urls] });
   }
-  function save() { if (!valid) { Alert.alert("Missing details", "Type, name and dimensions are required."); return; } upsert(p); nav.goBack(); }
+  async function save() {
+    if (!valid) { Alert.alert("Missing details", "Type, name and dimensions are required."); return; }
+    if (params?.persist) {
+      setBusy(true);
+      const enc = Object.fromEntries(content.enclosure_types.map((x) => [x.label, x.code])), acc = Object.fromEntries(content.accessories.map((x) => [x.label, x.code]));
+      const sp = specPayload(p, enc, acc); const ps = sp.pergola_spec as Record<string, unknown>;
+      const r = await api("/pergolas", { method: "POST", body: { name: p.name, structure_type: ps.structure_type, brand: p.brand || undefined, mounting: sp.mounting, width_ft: sp.width_ft, length_ft: sp.length_ft, height_ft: sp.height_ft, photo_url: p.photos[0], photos: p.photos, spec: ps } });
+      setBusy(false);
+      if (!r.success) { Alert.alert("Couldn't save", r.error ?? "Try again"); return; }
+      nav.goBack(); return;
+    }
+    upsert(p); nav.goBack();
+  }
 
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
@@ -54,7 +67,7 @@ export default function AddPergolaScreen() {
           <RNText style={{ ...S(12, "400", c.text4), marginTop: -8 }}>e.g. "Backyard pergola" — helps you tell them apart.</RNText>
         </Section>
         <Section title={`Dimensions (${unit})`} right={<View style={{ flexDirection: "row", backgroundColor: c.surface3, borderRadius: 9, padding: 3 }}>{(["ft", "m"] as const).map((u) => <Pressable key={u} onPress={() => setP({ ...p, units: u })} style={{ height: 30, paddingHorizontal: 10, borderRadius: 7, backgroundColor: unit === u ? c.surface : "transparent", justifyContent: "center" }}><RNText style={S(12.5, "600", unit === u ? c.text : c.text4)}>{u === "ft" ? "ft / in" : "m / cm"}</RNText></Pressable>)}</View>}>
-          <View style={{ flexDirection: "row", gap: 8 }}><Dim label="Width" k="w" /><Dim label="Length" k="l" /><Dim label="Height" k="h" /></View>
+          <View style={{ flexDirection: "row", gap: 8 }}>{dim("Width", "w")}{dim("Length", "l")}{dim("Height", "h")}</View>
         </Section>
         <Section title="How is it attached?">
           <View style={{ gap: 8 }}><ChoiceRow title="Attached" sub="Fixed to the house" on={p.attach === "attached"} onPress={() => setP({ ...p, attach: "attached" })} /><ChoiceRow title="Detached" sub="Freestanding" on={p.attach === "detached"} onPress={() => setP({ ...p, attach: "detached" })} /></View>
@@ -71,7 +84,7 @@ export default function AddPergolaScreen() {
                   <View style={{ borderRadius: 14, borderWidth: 1, borderColor: c.orangeBd, backgroundColor: c.surface, padding: 12, gap: 10 }}>
                     <View><RNText style={S(13, "700")}>{ed.i >= 0 ? "Edit enclosure" : "New enclosure / subsystem"}</RNText><RNText style={S(12, "400", c.text4)}>Dimensions in {unit}</RNText></View>
                     <SelectField label="Type" value={ed.type} placeholder="Select type" onPress={() => setPick("encType")} />
-                    <View style={{ flexDirection: "row", gap: 8 }}><Dim label="Width" k="w" small /><Dim label="Length" k="l" small /><Dim label="Height" k="h" small /></View>
+                    <View style={{ flexDirection: "row", gap: 8 }}>{dim("Width", "w", true)}{dim("Length", "l", true)}{dim("Height", "h", true)}</View>
                     <View style={{ gap: 4 }}><RNText style={S(12, "600", c.text2)}>Location <RNText style={S(12, "500", c.text4)}>(optional)</RNText></RNText><View style={{ flexDirection: "row", gap: 6 }}>{["Front", "Back", "Left", "Right"].map((l) => <Pressable key={l} onPress={() => setEd({ ...ed, loc: ed.loc === l ? undefined : l })} style={{ flex: 1, height: 36, borderRadius: 9, borderWidth: 1, borderColor: ed.loc === l ? c.primary : c.border2, backgroundColor: ed.loc === l ? c.primarySoft : c.surface, alignItems: "center", justifyContent: "center" }}><RNText style={S(13, "600")}>{l}</RNText></Pressable>)}</View></View>
                     <View style={{ flexDirection: "row", gap: 8 }}><SecondaryButton title="Cancel" height={40} style={{ flex: 1 }} onPress={() => setEd(null)} /><Pressable disabled={!ed.type || !ed.w || !ed.h} onPress={() => { const e = { type: ed.type, w: ed.w, l: ed.l, h: ed.h, loc: ed.loc }; setP({ ...p, enc: ed.i >= 0 ? p.enc.map((x, k) => (k === ed.i ? e : x)) : [...p.enc, e] }); setEd(null); }} style={{ flex: 1, height: 40, borderRadius: 10, backgroundColor: !ed.type || !ed.w || !ed.h ? c.surface3 : c.primary, alignItems: "center", justifyContent: "center" }}><RNText style={S(14, "600", !ed.type || !ed.w || !ed.h ? c.text4 : "#fff")}>{ed.i >= 0 ? "Save changes" : "Add"}</RNText></Pressable></View>
                   </View>
@@ -105,7 +118,7 @@ export default function AddPergolaScreen() {
             : <View style={{ height: 140, borderRadius: 16, borderWidth: 1, borderStyle: "dashed", borderColor: c.border2, backgroundColor: c.surface, alignItems: "center", justifyContent: "center", gap: 6 }}><Ionicons name="image-outline" size={26} color={c.text4} /><RNText style={S(13, "400", c.text4)}>Add a photo of your pergola</RNText></View>}
           <SecondaryButton title={busy ? "Uploading…" : "Upload photos"} icon={<Ionicons name="cloud-upload-outline" size={18} color={c.text} />} onPress={addPhoto} />
         </Section>
-        <PrimaryButton title={params?.key ? "Save pergola" : "Add pergola"} onPress={save} disabled={!valid} />
+        <PrimaryButton title={params?.key ? "Save pergola" : "Add pergola"} onPress={save} disabled={!valid} loading={busy} />
       </ScrollView>
       <PickerSheet open={pick === "type"} onClose={() => setPick(null)} title="Pergola type" options={PERGOLA_TYPES} value={p.type} onSelect={(v) => setP({ ...p, type: v })} />
       <PickerSheet open={pick === "brand"} onClose={() => setPick(null)} title="Brand" options={BRANDS} value={p.brand} onSelect={(v) => setP({ ...p, brand: v })} searchable />
