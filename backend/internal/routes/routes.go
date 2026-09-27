@@ -93,6 +93,7 @@ func Setup(r *gin.Engine, db *sql.DB, jwtSecret string) {
 			protected.POST("/me/devices", account.RegisterDevice)
 			protected.DELETE("/me/devices", account.UnregisterDevice)
 			protected.DELETE("/me", account.DeleteAccount)
+			protected.POST("/me/password", auth.ChangePassword)
 			// Training & activation
 			tr := protected.Group("/training", middleware.RoleRequired("contractor"))
 			tr.GET("", training.Hub)

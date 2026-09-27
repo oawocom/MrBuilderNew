@@ -354,6 +354,9 @@ func (h *HouseholdHandler) PublicDocument(c *gin.Context) {
 		utils.Error(c, http.StatusNotFound, "Link expired or invalid")
 		return
 	}
+	if documentHTML(c, dtype, title, url, payload) {
+		return
+	}
 	utils.Success(c, http.StatusOK, "", gin.H{"type": dtype, "title": title, "url": url, "payload": json.RawMessage(payload)})
 }
 
