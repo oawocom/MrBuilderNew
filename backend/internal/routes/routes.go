@@ -32,6 +32,7 @@ func Setup(r *gin.Engine, db *sql.DB, jwtSecret string) {
 	integ := handlers.NewIntegrationsHandler(db)
 	payments := handlers.NewPaymentsHandler(db)
 	handlers.InitPush(db)
+	handlers.InitInvoicePDF(jwtSecret)
 
 	api := r.Group("/api/v1")
 	{
@@ -49,6 +50,7 @@ func Setup(r *gin.Engine, db *sql.DB, jwtSecret string) {
 		api.GET("/mrcare/plans", settings.ListMrCarePlans)
 		api.GET("/contractors/:id/summary", hh.ContractorSummary)
 		api.GET("/public/documents/:token", hh.PublicDocument)
+		api.GET("/invoices/:id/pdf", quote.InvoicePDF)
 		api.GET("/content", training.Content)
 		api.POST("/leads", leadsH.Create)
 		api.GET("/emails/preview", emailH.Preview)
@@ -232,6 +234,7 @@ func Setup(r *gin.Engine, db *sql.DB, jwtSecret string) {
 			adm.Use(middleware.RoleRequired("admin"))
 			{
 				adm.GET("/stats", admin.Stats)
+				adm.POST("/geocode-missing", integ.GeocodeMissing)
 				adm.GET("/users", admin.ListUsers)
 				adm.PATCH("/users/:id/status", admin.SetUserStatus)
 				adm.GET("/jobs", admin.ListJobs)

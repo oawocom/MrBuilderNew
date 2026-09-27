@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ func (h *NotificationHandler) List(c *gin.Context) {
 	h.DB.QueryRow(`SELECT COUNT(*) FROM notifications WHERE user_id=$1 AND is_read=FALSE`, userID).Scan(&unread)
 
 	rows, err := h.DB.Query(
-		`SELECT id, notification_type, title, body, job_id, is_read, created_at
+		`SELECT id, notification_type, title, body, job_id, is_read, created_at, data
 		 FROM notifications WHERE user_id=$1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
 		userID, limit, (page-1)*limit,
 	)
@@ -43,9 +44,13 @@ func (h *NotificationHandler) List(c *gin.Context) {
 		var jobID *string
 		var isRead bool
 		var createdAt sql.NullTime
-		if rows.Scan(&id, &ntype, &title, &body, &jobID, &isRead, &createdAt) == nil {
+		var data []byte
+		if rows.Scan(&id, &ntype, &title, &body, &jobID, &isRead, &createdAt, &data) == nil {
+			if len(data) == 0 {
+				data = []byte("{}")
+			}
 			list = append(list, gin.H{
-				"id": id, "notification_type": ntype, "title": title, "body": body,
+				"id": id, "notification_type": ntype, "kind": ntype, "title": title, "body": body, "data": json.RawMessage(data),
 				"job_id": jobID, "is_read": isRead, "created_at": createdAt.Time,
 			})
 		}

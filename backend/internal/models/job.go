@@ -77,6 +77,7 @@ type Job struct {
 
 	// Attached on detail / list responses
 	Images           []string          `json:"images"`
+	ImageItems       []ImageItem       `json:"image_items"`
 	DistanceMiles    *float64          `json:"distance_miles,omitempty"`
 	Quotes           []*QuoteVersion   `json:"quotes,omitempty"`
 	InspectionReport *InspectionReport `json:"inspection_report,omitempty"`
@@ -154,7 +155,7 @@ type CreateJobRequest struct {
 	Urgency            *string          `json:"urgency" binding:"omitempty,oneof=low medium high"`
 	TimeWindow         *string          `json:"time_window"`
 	IssueDescription   *string          `json:"issue_description"`
-	Images             []string         `json:"images"`
+	Images             ImageList         `json:"images"`
 	ParentJobID        *string          `json:"parent_job_id"`
 	PergolaID          *string          `json:"pergola_id"`
 	OwnerID            *string          `json:"owner_id"` // household member creating on behalf of the owner
@@ -197,4 +198,35 @@ type RequoteRequest struct {
 		Amount float64 `json:"amount" binding:"required"`
 	} `json:"adjustments"`
 	Note *string `json:"note"`
+}
+
+// ImageItem is one customer request photo with an optional label and free-text comment.
+type ImageItem struct {
+	URL   string  `json:"url"`
+	Label *string `json:"label,omitempty"`
+	Note  *string `json:"note,omitempty"`
+}
+
+// ImageList accepts either ["url", ...] or [{"url", "label", "note"}, ...].
+type ImageList []ImageItem
+
+func (l *ImageList) UnmarshalJSON(b []byte) error {
+	var raw []json.RawMessage
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	out := make([]ImageItem, 0, len(raw))
+	for _, r := range raw {
+		var s string
+		if json.Unmarshal(r, &s) == nil {
+			out = append(out, ImageItem{URL: s})
+			continue
+		}
+		var o ImageItem
+		if json.Unmarshal(r, &o) == nil && o.URL != "" {
+			out = append(out, o)
+		}
+	}
+	*l = out
+	return nil
 }

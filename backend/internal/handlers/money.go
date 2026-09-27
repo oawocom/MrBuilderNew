@@ -79,12 +79,29 @@ func (h *MoneyHandler) Earnings(c *gin.Context) {
 			var b time.Time
 			var v float64
 			if rows.Scan(&b, &v) == nil {
-				series = append(series, gin.H{"bucket": b.Format("2006-01-02"), "amount": money(v)})
+				label := b.Format("Jan 2")
+				if bucket == "month" {
+					label = b.Format("Jan 2006")
+				}
+				series = append(series, gin.H{"bucket": b.Format("2006-01-02"), "label": label, "amount": money(v)})
 			}
 		}
 	}
 
+	var lastPayout gin.H
+	{
+		var amt float64
+		var at time.Time
+		if h.DB.QueryRow(`SELECT amount, COALESCE(processed_at, created_at) FROM payout_requests WHERE contractor_id=$1 AND status='completed' ORDER BY COALESCE(processed_at, created_at) DESC LIMIT 1`, userID).Scan(&amt, &at) == nil {
+			lastPayout = gin.H{"amount": money(amt), "at": at}
+		}
+	}
+	var totalEarned float64
+	h.DB.QueryRow(`SELECT COALESCE(SUM(amount),0) FROM transactions WHERE user_id=$1 AND status='completed' AND transaction_type IN ('earning','tip','platform_fee','cancellation_fee')`, userID).Scan(&totalEarned)
+
 	utils.Success(c, http.StatusOK, "", gin.H{
+		"last_payout":        lastPayout,
+		"total_earned":       money(totalEarned),
 		"balance":            money(balance),
 		"available":          money(balance),
 		"pending_payouts":    money(pendingPayouts),

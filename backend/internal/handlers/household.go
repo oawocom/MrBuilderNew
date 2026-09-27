@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"os"
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
@@ -327,6 +328,10 @@ func (h *HouseholdHandler) ListDocuments(c *gin.Context) {
 		var shared bool
 		var at time.Time
 		if rows.Scan(&id, &dtype, &title, &jobID, &code, &pergolaID, &refID, &url, &payload, &shared, &at) == nil {
+			if dtype == "invoice" && url == nil && refID != nil {
+				u := InvoicePDFURL(*refID)
+				url = &u
+			}
 			out = append(out, gin.H{"id": id, "type": dtype, "title": title, "job_id": jobID, "request_code": code, "pergola_id": pergolaID, "ref_id": refID, "url": url, "payload": json.RawMessage(payload), "shared": shared, "created_at": at})
 		}
 	}
@@ -573,7 +578,13 @@ func (h *HouseholdHandler) Referrals(c *gin.Context) {
 	}
 	var balance float64
 	h.DB.QueryRow(`SELECT COALESCE(balance,0) FROM balances WHERE user_id=$1`, userID).Scan(&balance)
-	utils.Success(c, http.StatusOK, "", gin.H{"code": code, "reward_amount": GetSettingFloat(h.DB, "referral_reward", 25), "earned": money(earned), "credit_balance": money(balance), "referrals": list})
+	reward := GetSettingFloat(h.DB, "referral_reward", 25)
+	base := os.Getenv("PUBLIC_BASE_URL")
+	if base == "" {
+		base = "https://mrbuilder.com"
+	}
+	utils.Success(c, http.StatusOK, "", gin.H{"code": code, "reward_amount": reward, "earned": money(earned), "credit_balance": money(balance), "referrals": list,
+		"link": strings.TrimRight(base, "/") + "/?ref=" + code, "reward": fmt.Sprintf("$%.0f credit", reward), "referred": len(list)})
 }
 
 // POST /referrals/apply {code} — once per account, before the first paid job
@@ -651,6 +662,20 @@ func (h *HouseholdHandler) ContractorSummary(c *gin.Context) {
 	if r := []rune(last); len(r) > 0 {
 		initial = " " + string(r[:1]) + "."
 	}
+	title := "MrBuilder PRO"
+	if len(cats) > 0 {
+		title = cats[0] + " PRO"
+	}
+	photos := []string{}
+	if pr, err := h.DB.Query(`SELECT e.url FROM job_evidence e JOIN jobs j ON j.id=e.job_id WHERE j.contractor_id=$1 AND e.kind='completion' AND j.status='completed_paid' ORDER BY e.created_at DESC LIMIT 6`, id); err == nil {
+		for pr.Next() {
+			var u string
+			if pr.Scan(&u) == nil {
+				photos = append(photos, u)
+			}
+		}
+		pr.Close()
+	}
 	utils.Success(c, http.StatusOK, "", gin.H{"id": id, "name": first + initial, "avatar_url": avatar, "rating_avg": rating, "ratings_count": ratings,
-		"jobs_completed": jobs, "member_since": since.Format("2006-01"), "qualified_categories": cats, "pro": len(cats) > 0})
+		"jobs_completed": jobs, "member_since": since.Format("2006-01"), "qualified_categories": cats, "pro": len(cats) > 0, "title": title, "recent_photos": photos})
 }

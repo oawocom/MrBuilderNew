@@ -75,15 +75,17 @@ func scanJobWithDistance(rows *sql.Rows) (*models.Job, error) {
 
 func (h *JobHandler) loadImages(j *models.Job) {
 	j.Images = []string{}
-	rows, err := h.DB.Query(`SELECT image_url FROM job_images WHERE job_id=$1 ORDER BY created_at`, j.ID)
+	j.ImageItems = []models.ImageItem{}
+	rows, err := h.DB.Query(`SELECT image_url, label, note FROM job_images WHERE job_id=$1 ORDER BY created_at`, j.ID)
 	if err != nil {
 		return
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var u string
-		if rows.Scan(&u) == nil {
-			j.Images = append(j.Images, u)
+		var it models.ImageItem
+		if rows.Scan(&it.URL, &it.Label, &it.Note) == nil {
+			j.Images = append(j.Images, it.URL)
+			j.ImageItems = append(j.ImageItems, it)
 		}
 	}
 }
@@ -178,12 +180,15 @@ func (h *JobHandler) Create(c *gin.Context) {
 		utils.Error(c, http.StatusInternalServerError, "Failed to create request: "+err.Error())
 		return
 	}
+	if j.LocationLat == nil {
+		go geocodeJob(h.DB, j.ID)
+	}
 	if req.DraftID != nil {
 		h.DB.Exec(`DELETE FROM request_drafts WHERE id=$1 AND user_id=$2`, *req.DraftID, userID)
 	}
 	for _, img := range req.Images {
-		if img = strings.TrimSpace(img); img != "" {
-			h.DB.Exec(`INSERT INTO job_images (job_id, image_url) VALUES ($1, $2)`, j.ID, img)
+		if u := strings.TrimSpace(img.URL); u != "" {
+			h.DB.Exec(`INSERT INTO job_images (job_id, image_url, label, note) VALUES ($1, $2, $3, $4)`, j.ID, u, img.Label, img.Note)
 		}
 	}
 	logEvent(h.DB, j.ID, userID, "consumer", "submitted", "", "submitted", gin.H{"quote_method": method})

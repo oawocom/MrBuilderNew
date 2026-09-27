@@ -40,6 +40,35 @@ func scanPergola(row interface{ Scan(...interface{}) error }) (gin.H, error) {
 		"installed_at": installed, "install_job_id": installJob, "photo_url": photo, "is_active": active, "created_at": created}, nil
 }
 
+// extras adds the fields the mobile pergola screens show: source, photos, last_service_at, next_check_at
+func (h *MrCareHandler) extras(p gin.H) {
+	id := p["id"].(string)
+	source := "manual"
+	if ij, ok := p["install_job_id"].(*string); ok && ij != nil {
+		source = "installation"
+	}
+	p["source"] = source
+	photos := []string{}
+	if spec, ok := p["spec"].(json.RawMessage); ok && len(spec) > 2 {
+		var sp struct {
+			Photos []string `json:"photos"`
+		}
+		if json.Unmarshal(spec, &sp) == nil {
+			photos = append(photos, sp.Photos...)
+		}
+	}
+	if ph, ok := p["photo_url"].(*string); ok && ph != nil && *ph != "" && len(photos) == 0 {
+		photos = append(photos, *ph)
+	}
+	p["photos"] = photos
+	var last sql.NullTime
+	h.DB.QueryRow(`SELECT MAX(paid_at) FROM jobs WHERE pergola_id=$1 AND status='completed_paid'`, id).Scan(&last)
+	p["last_service_at"] = nullTime(last)
+	var next *string
+	h.DB.QueryRow(`SELECT MIN(due_at)::text FROM maintenance_reminders WHERE pergola_id=$1 AND status IN ('pending','notified','snoozed')`, id).Scan(&next)
+	p["next_check_at"] = next
+}
+
 func (h *MrCareHandler) coverage(pergolaID string) gin.H {
 	out := gin.H{"maintenance": nil, "electronics": nil}
 	rows, err := h.DB.Query(`SELECT id, offering, plan_slug, status, renew_at FROM mrcare_subscriptions WHERE status='active' AND $1 = ANY(pergola_ids)`, pergolaID)
@@ -70,6 +99,7 @@ func (h *MrCareHandler) ListPergolas(c *gin.Context) {
 	for rows.Next() {
 		if p, err := scanPergola(rows); err == nil {
 			p["coverage"] = h.coverage(p["id"].(string))
+			h.extras(p)
 			out = append(out, p)
 		}
 	}
@@ -117,6 +147,7 @@ func (h *MrCareHandler) CreatePergola(c *gin.Context) {
 		return
 	}
 	p["coverage"] = h.coverage(p["id"].(string))
+			h.extras(p)
 	utils.Success(c, http.StatusCreated, "Pergola added", p)
 }
 
@@ -144,6 +175,7 @@ func (h *MrCareHandler) UpdatePergola(c *gin.Context) {
 		return
 	}
 	p["coverage"] = h.coverage(p["id"].(string))
+			h.extras(p)
 	utils.Success(c, http.StatusOK, "Pergola updated", p)
 }
 

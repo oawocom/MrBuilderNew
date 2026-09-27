@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"time"
 	"database/sql"
 	"net/http"
 
@@ -271,7 +272,7 @@ func (h *QuoteHandler) Withdraw(c *gin.Context) {
 	utils.Success(c, http.StatusOK, "Quote withdrawn", nil)
 }
 
-// GET /invoices/me — caller's invoices (both roles)
+// GET /invoices/me — caller's invoices (both roles), with request_code, kind, due_date and a signed pdf_url
 func (h *QuoteHandler) ListMyInvoices(c *gin.Context) {
 	userID := c.GetString("user_id")
 	role := c.GetString("user_role")
@@ -281,14 +282,17 @@ func (h *QuoteHandler) ListMyInvoices(c *gin.Context) {
 	if role == "contractor" {
 		col = "contractor_id"
 	}
+	dueDays := GetSettingInt(h.DB, "invoice_due_days", 7)
 
 	var total int64
 	h.DB.QueryRow(`SELECT COUNT(*) FROM invoices WHERE `+col+`=$1`, userID).Scan(&total)
 
 	rows, err := h.DB.Query(
-		`SELECT id, job_id, quote_id, consumer_id, contractor_id, amount, description, status, is_read,
-		 stripe_payment_intent_id, stripe_checkout_session_id, paid_at, cancelled_at, created_at, updated_at
-		 FROM invoices WHERE `+col+`=$1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+		`SELECT i.id, i.job_id, i.quote_id, i.consumer_id, i.contractor_id, i.amount, i.description, i.status::text, i.is_read,
+		 i.stripe_payment_intent_id, i.stripe_checkout_session_id, i.paid_at, i.cancelled_at, i.created_at, i.updated_at,
+		 COALESCE(i.line_type,'job'), j.request_code, j.title
+		 FROM invoices i LEFT JOIN jobs j ON j.id=i.job_id
+		 WHERE i.`+col+`=$1 ORDER BY i.created_at DESC LIMIT $2 OFFSET $3`,
 		userID, limit, (page-1)*limit,
 	)
 	if err != nil {
@@ -297,15 +301,33 @@ func (h *QuoteHandler) ListMyInvoices(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	invoices := []*models.Invoice{}
+	list := []gin.H{}
 	for rows.Next() {
 		var inv models.Invoice
+		var kind, jobTitle string
+		var code *string
 		if err := rows.Scan(&inv.ID, &inv.JobID, &inv.QuoteID, &inv.ConsumerID, &inv.ContractorID,
 			&inv.Amount, &inv.Description, &inv.Status, &inv.IsRead,
 			&inv.StripePaymentIntentID, &inv.StripeCheckoutSessionID,
-			&inv.PaidAt, &inv.CancelledAt, &inv.CreatedAt, &inv.UpdatedAt); err == nil {
-			invoices = append(invoices, &inv)
+			&inv.PaidAt, &inv.CancelledAt, &inv.CreatedAt, &inv.UpdatedAt, &kind, &code, &jobTitle); err != nil {
+			continue
 		}
+		var due *time.Time
+		if inv.Status == "pending" {
+			d := inv.CreatedAt.AddDate(0, 0, dueDays)
+			due = &d
+		}
+		status := inv.Status
+		if due != nil && due.Before(time.Now()) {
+			status = "overdue"
+		}
+		list = append(list, gin.H{
+			"id": inv.ID, "job_id": inv.JobID, "quote_id": inv.QuoteID, "consumer_id": inv.ConsumerID, "contractor_id": inv.ContractorID,
+			"amount": inv.Amount, "description": inv.Description, "status": status, "is_read": inv.IsRead,
+			"stripe_payment_intent_id": inv.StripePaymentIntentID, "stripe_checkout_session_id": inv.StripeCheckoutSessionID,
+			"paid_at": inv.PaidAt, "cancelled_at": inv.CancelledAt, "created_at": inv.CreatedAt, "updated_at": inv.UpdatedAt,
+			"kind": kind, "request_code": code, "job_title": jobTitle, "due_date": due, "pdf_url": InvoicePDFURL(inv.ID),
+		})
 	}
-	utils.Paginated(c, http.StatusOK, invoices, total, page, limit)
+	utils.Paginated(c, http.StatusOK, list, total, page, limit)
 }
