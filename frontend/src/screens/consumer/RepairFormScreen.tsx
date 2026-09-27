@@ -23,11 +23,11 @@ export default function RepairFormScreen() {
   const { c } = useTheme();
   const [pergolas, setPergolas] = useState<Pergola[]>([]); const [cats, setCats] = useState<Category[]>([]);
   const [f, setF] = useState({ pergola: "", svc: "", desc: "", urg: "medium", start: "", end: "", from: "", until: "" });
-  const [photos, setPhotos] = useState<Record<string, string>>({}); const [more, setMore] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<Record<string, string>>({}); const [more, setMore] = useState<string[]>([]); const [notes, setNotes] = useState<Record<string, string>>({});
   const [pick, setPick] = useState<null | "pergola" | "svc">(null); const [sheet, setSheet] = useState(false); const [method, setMethod] = useState<"ai" | "inspector">("ai");
   const [busy, setBusy] = useState(false);
   const S = (n: number, w: "400" | "500" | "600" | "700" = "400", col = c.text) => ({ fontSize: n, fontFamily: w === "400" ? font.regular : w === "500" ? font.medium : w === "600" ? font.semibold : font.bold, color: col });
-  useEffect(() => { api<Pergola[]>("/pergolas").then((r) => { setPergolas(r.data ?? []); if (r.data?.[0]) setF((x) => ({ ...x, pergola: r.data![0].id })); }); api<Category[]>("/categories").then((r) => setCats((r.data ?? []).filter((k) => k.slug !== "installation"))); }, []);
+  useEffect(() => { api<Pergola[]>("/pergolas").then((r) => { setPergolas(r.data ?? []); if (r.data?.[0]) setF((x) => ({ ...x, pergola: r.data![0].id })); }); api<Category[]>("/categories").then((r) => setCats((r.data ?? []).filter((k) => k.slug !== "installation" && k.slug !== "inspection"))); }, []);
   const perg = pergolas.find((p) => p.id === f.pergola);
   const svc = cats.find((k) => k.name === f.svc);
   const ready = f.svc && f.desc.trim().length > 5 && (perg || pergolas.length === 0);
@@ -45,7 +45,7 @@ export default function RepairFormScreen() {
       location_address: perg?.address_line1 ?? undefined, location_city: perg?.city ?? undefined, location_state: perg?.state ?? undefined, location_zip: perg?.zip_code ?? undefined, property_type: "residential",
       mounting: perg?.mounting ?? undefined, width_ft: perg?.width_ft ?? undefined, length_ft: perg?.length_ft ?? undefined, height_ft: perg?.height_ft ?? undefined, pergola_spec: { structure_type: perg?.structure_type ?? "louvered" },
       issue_description: f.desc, urgency: f.urg, preferred_start_date: f.start || undefined, preferred_end_date: f.end || undefined, notes: f.from || f.until ? `Time window: ${f.from || "?"} – ${f.until || "?"}` : undefined,
-      images: [...SLOTS.map(([k, t]) => photos[k] ? { url: photos[k], label: t } : null).filter(Boolean), ...more.map((u) => ({ url: u, label: "More" }))] };
+      images: [...SLOTS.map(([k, t]) => photos[k] ? { url: photos[k], label: t, note: notes[k] || undefined } : null).filter(Boolean), ...more.map((u, i) => ({ url: u, label: "More", note: notes[`more-${i}`] || undefined }))] };
     const r = await api<{ id: string }>("/jobs", { method: "POST", body });
     setBusy(false);
     if (!r.success || !r.data) { Alert.alert("Couldn't submit", r.error ?? "Try again"); return; }
@@ -76,7 +76,11 @@ export default function RepairFormScreen() {
                 : <><Ionicons name="camera-outline" size={22} color={c.text3} /><RNText style={{ ...S(12, "600", c.text3), textAlign: "center" }}>{t}</RNText><RNText style={S(11, "500", c.text4)}>{s}</RNText></>}
             </Pressable>); })}</View>
           <RNText style={S(12, "400", c.text4)}>Guided shots give the AI quote and technician what they need. Labels travel with the photos to the contractor.</RNText>
-          {more.map((u, i) => <View key={i} style={{ flexDirection: "row", alignItems: "center", gap: 12, padding: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface }}><Image source={{ uri: u }} style={{ width: 40, height: 40, borderRadius: 10 }} /><RNText style={{ flex: 1, ...S(14, "600") }}>Photo {i + 4}</RNText><Pressable onPress={() => setMore(more.filter((_, k) => k !== i))} style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: c.surface2, alignItems: "center", justifyContent: "center" }}><Ionicons name="trash-outline" size={16} color={c.text2} /></Pressable></View>)}
+          {[...SLOTS.filter(([k]) => photos[k]).map(([k, t]) => ({ key: k, url: photos[k], title: t, slot: true })), ...more.map((u, i) => ({ key: `more-${i}`, url: u, title: `Photo ${i + 4}`, slot: false }))].map((ph) => (
+            <View key={ph.key} style={{ borderRadius: 12, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, padding: 10, paddingHorizontal: 12, gap: 8 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}><Image source={{ uri: ph.url }} style={{ width: 40, height: 40, borderRadius: 10 }} /><RNText style={{ flex: 1, ...S(14, "600") }}>{ph.title}</RNText><Pressable onPress={() => { if (ph.slot) setPhotos((p) => { const n = { ...p }; delete n[ph.key]; return n; }); else setMore(more.filter((_, k) => `more-${k}` !== ph.key)); setNotes((n) => { const x = { ...n }; delete x[ph.key]; return x; }); }} style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: c.surface2, alignItems: "center", justifyContent: "center" }}><Ionicons name="trash-outline" size={16} color={c.text2} /></Pressable></View>
+              <TextInput value={notes[ph.key] ?? ""} onChangeText={(v) => setNotes((n) => ({ ...n, [ph.key]: v.slice(0, 200) }))} placeholder="Comment on this photo (optional)" placeholderTextColor={c.text4} style={{ height: 40, borderRadius: 10, borderWidth: 1, borderColor: c.border2, backgroundColor: c.bg, paddingHorizontal: 12, fontFamily: font.regular, fontSize: 14, color: c.text }} />
+            </View>))}
           {Object.keys(photos).length + more.length < 6 && <Pressable onPress={() => shoot("more")} style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: c.border2, backgroundColor: c.surface, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }}><Ionicons name="images-outline" size={18} color={c.text} /><RNText style={S(14, "600")}>{busy ? "Uploading…" : "Add more photos"}</RNText></Pressable>}
         </Section>
       </ScrollView>

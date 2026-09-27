@@ -72,11 +72,11 @@ export type RootParams = {
   Welcome: undefined; Login: undefined; Register: undefined; Forgot: undefined; Otp: { email: string }; Tabs: { screen?: string } | undefined;
   NewRequest: undefined; InstallForm: { draftId?: string }; RepairForm: undefined; Quote: { id: string; others?: number; method: "ai" | "inspector" };
   RequestDetail: { id: string }; AddPergola: { key?: string; persist?: boolean }; PergolaDetail: { id: string }; Pergolas: undefined;
-  ReportIssue: { id: string }; Gallery: { photos: { url: string; label?: string; at?: string }[]; index?: number };
-  Chats: undefined; Chat: { id: string; title: string; closed?: boolean }; ContractorProfile: { id: string }; Documents: undefined; Household: undefined; Reminders: { pergolaId?: string } | undefined; PaymentMethods: undefined;
+  ReportIssue: { id: string }; Gallery: { photos: { url: string; label?: string; at?: string; note?: string }[]; index?: number };
+  Chats: undefined; Chat: { id: string; title: string; closed?: boolean }; ContractorProfile: { id: string }; Documents: { jobId?: string; title?: string } | undefined; Household: undefined; Reminders: { pergolaId?: string } | undefined; PaymentMethods: undefined;
   MrCareBuy: { offering: "maintenance" | "electronics" }; SubscriptionDetail: { id: string }; MaintenanceBooking: { subscriptionId: string; pergolaId?: string }; ElectronicsClaim: { subscriptionId: string; pergolaId?: string };
   Profile: undefined;
-  JobDetail: { id: string }; Lesson: { slug: string }; Notifications: undefined;
+  JobDetail: { id: string; fix?: boolean }; Lesson: { slug: string }; Notifications: undefined;
   Earnings: undefined; PersonalInfo: undefined; ProSettings: undefined; Help: undefined; Legal: { kind: "terms" | "privacy" }; TransactionDetail: { id: string }; PayoutMethod: undefined; Schedule: undefined; ClientComment: { id: string }; DisputeForm: { id: string }; RateClient: { id: string; confirmed?: boolean }; InspectionReport: { id: string }; Training: undefined; Store: { jobId?: string } | undefined; StoreSearch: { jobId?: string } | undefined; StoreCategories: undefined; StoreProducts: { category?: string; title?: string; favorites?: boolean; jobId?: string } | undefined; StoreProduct: { id: string; jobId?: string }; StoreCart: { jobId?: string } | undefined; StoreCheckout: { jobId?: string } | undefined; StoreOrders: undefined; StoreOrder: { id: string; track?: boolean }; StoreAddresses: undefined;
 };
 export const navigationRef = createNavigationContainerRef<RootParams>();

@@ -32,3 +32,4 @@ docker-compose.yml.bak
 !backend/migrations/*.sql
 .env
 data/
+frontend/*.ipa

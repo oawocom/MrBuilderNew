@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Alert, Linking, Pressable, ScrollView, Text as RNText, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { Header } from "../../components/sheet";
@@ -16,9 +16,10 @@ const EXT: Record<string, [string, "info" | "err" | "ok" | "orange"]> = { invoic
 
 export default function DocumentsScreen() {
   const nav = useNavigation<NativeStackNavigationProp<RootParams>>();
+  const { params } = useRoute<{ key: string; name: string; params?: { jobId?: string; title?: string } }>();
   const { c } = useTheme();
   const [docs, setDocs] = useState<Doc[]>([]); const [tab, setTab] = useState("");
-  const load = useCallback(async () => { const r = await api<Doc[]>(`/documents?limit=100${tab ? `&type=${tab}` : ""}`); setDocs(r.data ?? []); }, [tab]);
+  const load = useCallback(async () => { const r = await api<Doc[]>(`/documents?limit=100${tab ? `&type=${tab}` : ""}${params?.jobId ? `&job_id=${params.jobId}` : ""}`); setDocs(r.data ?? []); }, [tab, params?.jobId]);
   useFocusEffect(useCallback(() => { load(); }, [load]));
   const S = (n: number, w: "400" | "600" | "700" = "400", col = c.text) => ({ fontSize: n, fontFamily: w === "400" ? font.regular : w === "600" ? font.semibold : font.bold, color: col });
   const tone = (t: "info" | "err" | "ok" | "orange") => ({ info: [c.infoBg, c.info], err: [c.errBg, c.err], ok: [c.okBg, c.ok], orange: [c.orangeBg, c.orange] }[t]);
@@ -30,7 +31,7 @@ export default function DocumentsScreen() {
   }
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
-      <Header title="Documents" onBack={() => nav.goBack()} />
+      <Header title={params?.title ? `Documents · ${params.title}` : "Documents"} onBack={() => nav.goBack()} />
       <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 12, gap: 12 }}>
         <ScrollView automaticallyAdjustKeyboardInsets horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>{TABS.map(([k, l]) => <Pressable key={k} onPress={() => setTab(k)} style={{ height: 34, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: tab === k ? c.hero : c.border2, backgroundColor: tab === k ? c.hero : c.surface, justifyContent: "center" }}><RNText style={S(13, "600", tab === k ? "#fff" : c.text2)}>{l}</RNText></Pressable>)}</ScrollView>
         {docs.length === 0 && <View style={{ borderRadius: 16, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, padding: 24, alignItems: "center" }}><RNText style={S(13.5, "400", c.text4)}>Nothing here yet.</RNText></View>}

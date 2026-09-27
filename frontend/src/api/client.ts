@@ -103,6 +103,7 @@ export interface User { id: string; email: string; first_name: string; last_name
 export interface Party { id: string; first_name: string; last_name: string; phone?: string | null; avatar_url?: string | null }
 export interface QuoteLine { label: string; qty: number; unit_amount: number; amount: number }
 export interface Quote { id: string; version: number; status: string; total: number; platform_fee: number; contractor_net: number; inspection_credit: number; valid_until: string | null; line_items: QuoteLine[] }
+export interface ImageItem { url: string; label?: string | null; note?: string | null }
 export interface Job {
   id: string; request_code: string; title: string; service_category: string; kind: string; status: string; quote_method: string;
   quote_total: number | null; platform_fee: number | null; contractor_net: number | null; tip: number; consumer_charged: number | null; inspection_fee: number; inspection_fee_credit: number;
@@ -111,7 +112,7 @@ export interface Job {
   pergola_spec: { structure_type?: string; enclosures?: { type: string }[]; accessories?: { type: string; qty: number }[]; footings?: { involved?: boolean; ready?: boolean; count?: number } };
   preferred_start_date?: string | null; preferred_end_date?: string | null; scheduled_start: string | null; return_visit_at: string | null; auto_confirm_at: string | null; en_route_eta_minutes: number | null; pause_reason: string | null; completion_note: string | null;
   checklist_done: string[]; damage_flagged: boolean; covered_by: string | null; is_assessment: boolean; reschedule_pending_by: string | null; distance_miles?: number | null;
-  consumer?: Party | null; contractor?: Party | null; quotes?: Quote[]; images: string[]; created_at: string; updated_at: string; paid_at?: string | null;
+  consumer?: Party | null; contractor?: Party | null; quotes?: Quote[]; images: string[]; image_items?: ImageItem[]; created_at: string; updated_at: string; paid_at?: string | null;
   inspection_report?: { findings: string | null; measurements?: Record<string, unknown>; photos: { url: string; label?: string }[]; pdf_url: string | null; submitted_at?: string } | null;
 }
 export interface Category { slug: string; name: string; requires_practical: boolean; pre_job_checklist: { id: string; text: string; critical: boolean }[] }

@@ -23,7 +23,7 @@ export default function QuoteScreen() {
   const [phase, setPhase] = useState(0);
   const [received, setReceived] = useState(false);
   const [busy, setBusy] = useState(false);
-  const insp = params.method === "inspector";
+  const insp = params.method === "inspector" || j?.quote_method === "inspection" || j?.status === "inspection_booked";
   const spin = useState(new Animated.Value(0))[0];
   const S = (n: number, w: "400" | "500" | "600" | "700" | "800" = "400", col = c.text) => ({ fontSize: n, fontFamily: w === "400" ? font.regular : w === "500" ? font.medium : w === "600" ? font.semibold : font.bold, color: col });
 
@@ -44,7 +44,7 @@ export default function QuoteScreen() {
   const quote = j?.quotes?.[0];
   const spec = j?.pergola_spec ?? {};
   const lines = insp ? [["On-site inspection · 1 visit", money(j?.inspection_fee ?? 99)], ["Credited toward the job if you proceed", `−${money(j?.inspection_fee ?? 99)}`]] : (quote?.line_items ?? []).map((l) => [l.label + (l.qty !== 1 ? ` × ${l.qty}` : ""), money(l.amount)]);
-  const rows = j ? [["Service", "Installation"], ["Address", [j.location_address, j.location_city, j.location_state].filter(Boolean).join(", ")], ["Property", "Residential"], ["Mounting", j.mounting === "attached" ? "Attached" : "Free standing"], ["Notes", j.notes ?? "—"]] : [];
+  const rows = j ? [["Service", j.service_category ? j.service_category.charAt(0).toUpperCase() + j.service_category.slice(1) : "Installation"], ["Address", [j.location_address, j.location_city, j.location_state].filter(Boolean).join(", ")], ["Property", "Residential"], ["Mounting", j.mounting === "attached" ? "Attached" : "Free standing"], ["Notes", j.notes ?? "—"]] : [];
 
   const go = (fn: () => void) => { setReceived(false); setTimeout(fn, 350); };
   return (
