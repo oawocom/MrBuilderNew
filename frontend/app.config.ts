@@ -15,7 +15,7 @@ const config: ExpoConfig = {
   ios: { bundleIdentifier: isPro ? "com.omphire.mrbuilder.pro" : "com.omphire.mrbuilder", supportsTablet: false, infoPlist: {
       ITSAppUsesNonExemptEncryption: false, NSCameraUsageDescription: "Photos of the work area, before and after the job.", NSPhotoLibraryUsageDescription: "Attach photos to your requests and jobs.", NSLocationWhenInUseUsageDescription: "Show jobs near you and share your ETA." } },
   android: { package: isPro ? "com.omphire.mrbuilder.pro" : "com.omphire.mrbuilder", adaptiveIcon: { foregroundImage: isPro ? "./assets/adaptive-pro.png" : "./assets/adaptive-icon.png", backgroundColor: isPro ? "#FFFFFF" : "#EF6820" }, permissions: ["CAMERA", "ACCESS_FINE_LOCATION"] },
-  plugins: ["expo-secure-store", "expo-font", "expo-location", "expo-image-picker", "expo-notifications"],
+  plugins: ["@react-native-community/datetimepicker", "expo-secure-store", "expo-font", "expo-location", "expo-image-picker", "expo-notifications"],
   runtimeVersion: { policy: "appVersion" },
   updates: { url: (process.env.EAS_PROJECT_ID ?? "f511be99-288d-4634-9ab5-5fd156589a4d") ? `https://u.expo.dev/${(process.env.EAS_PROJECT_ID ?? "f511be99-288d-4634-9ab5-5fd156589a4d")}` : undefined },
   extra: { variant, apiUrl: process.env.API_URL ?? "https://mrbuilder.com/api/v1", eas: { projectId: (process.env.EAS_PROJECT_ID ?? "f511be99-288d-4634-9ab5-5fd156589a4d") } },

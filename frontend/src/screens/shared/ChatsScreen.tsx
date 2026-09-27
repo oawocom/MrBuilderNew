@@ -17,7 +17,7 @@ export default function ChatsScreen() {
   const { c } = useTheme();
   const [list, setList] = useState<Conv[]>([]); const [q, setQ] = useState("");
   const load = useCallback(async () => { const r = await api<Conv[]>("/conversations"); setList(r.data ?? []); }, []);
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(useCallback(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); }, [load]));
   const S = (n: number, w: "400" | "600" | "700" = "400", col = c.text) => ({ fontSize: n, fontFamily: w === "400" ? font.regular : w === "600" ? font.semibold : font.bold, color: col });
   const name = (cv: Conv) => cv.other ? `${cv.other.first_name} ${cv.other.last_name}` : "MrBuilder";
   const ago = (v: string) => { const m = (Date.now() - new Date(v).getTime()) / 60000; return m < 60 ? `${Math.max(1, Math.round(m))}m` : m < 1440 ? `${Math.round(m / 60)}h` : new Date(v).toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
@@ -25,7 +25,7 @@ export default function ChatsScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Chats" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 12, gap: 12 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 12, gap: 12 }}>
         <View><Ionicons name="search-outline" size={18} color={c.text4} style={{ position: "absolute", left: 12, top: 13, zIndex: 1 }} /><TextInput value={q} onChangeText={setQ} placeholder="Search conversations" placeholderTextColor={c.text4} style={{ height: 44, borderRadius: 12, borderWidth: 1, borderColor: c.border2, backgroundColor: c.surface, paddingLeft: 38, paddingRight: 12, fontFamily: font.regular, fontSize: 14.5, color: c.text }} /></View>
         {shown.length === 0 && <View style={{ alignItems: "center", gap: 8, paddingTop: 56, paddingHorizontal: 24 }}><View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: c.surface2, alignItems: "center", justifyContent: "center" }}><Ionicons name="chatbubbles-outline" size={30} color={c.text4} /></View><RNText style={S(17, "700")}>No conversations yet</RNText><RNText style={{ ...S(14, "400", c.text4), textAlign: "center" }}>{APP_VARIANT === "contractor" ? "A chat opens with the client as soon as you accept a job." : "A chat opens with your technician as soon as a request becomes active."}</RNText></View>}
         {shown.map((cv) => { const n = name(cv); const ini = n.split(" ").map((x) => x[0]).join("").slice(0, 2); const unread = (cv.unread ?? 0) > 0; return (

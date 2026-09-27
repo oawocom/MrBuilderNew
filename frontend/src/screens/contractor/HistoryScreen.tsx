@@ -23,7 +23,7 @@ export default function HistoryScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <View style={{ paddingHorizontal: 16, paddingVertical: 8 }}><RNText style={S(20, "700")}>History</RNText></View>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 4, gap: 12 }}>
         <View style={{ flexDirection: "row", backgroundColor: c.surface3, borderRadius: 12, padding: 4 }}>{(["done", "cancel"] as const).map((k) => <Pressable key={k} onPress={() => setSeg(k)} style={{ flex: 1, height: 40, borderRadius: 9, backgroundColor: seg === k ? c.surface : "transparent", alignItems: "center", justifyContent: "center" }}><RNText style={S(14, "600", seg === k ? c.text : c.text4)}>{k === "done" ? `Completed (${done.length})` : `Canceled (${canc.length})`}</RNText></Pressable>)}</View>
         {loading && [1, 2, 3].map((k) => <View key={k} style={{ height: 112, borderRadius: 16, backgroundColor: c.surface2 }} />)}
         {!loading && list.length === 0 && <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 16, padding: 24, alignItems: "center", gap: 6 }}><RNText style={S(15, "600")}>{seg === "done" ? "No completed jobs yet" : "No canceled jobs"}</RNText><RNText style={S(13, "400", c.text4)}>{seg === "done" ? "Finished jobs and payouts show up here." : "Good — keep it that way."}</RNText></View>}

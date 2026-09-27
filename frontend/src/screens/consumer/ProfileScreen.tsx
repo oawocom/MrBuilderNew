@@ -37,7 +37,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Profile & settings" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 20, paddingBottom: 40, gap: 24 }} keyboardShouldPersistTaps="handled">
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 20, paddingBottom: 40, gap: 24 }} keyboardShouldPersistTaps="handled">
         <View style={{ alignItems: "center", gap: 10 }}><View><View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: c.hero, alignItems: "center", justifyContent: "center", overflow: "hidden" }}>{user?.avatar_url ? <Image source={{ uri: user.avatar_url }} style={{ width: 96, height: 96 }} /> : <RNText style={S(32, "700", "#fff")}>{user?.first_name?.[0]}{user?.last_name?.[0]}</RNText>}</View><Pressable onPress={avatar} style={{ position: "absolute", right: -2, bottom: -2, width: 32, height: 32, borderRadius: 16, backgroundColor: c.primary, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: c.bg }}><Ionicons name="camera" size={15} color="#fff" /></Pressable></View><View style={{ alignItems: "center", gap: 2 }}><RNText style={S(20, "700")}>{user?.first_name} {user?.last_name}</RNText><RNText style={S(13, "400", c.text4)}>{user?.email}</RNText></View></View>
         <Section title="Personal details">
           <Field label="Full name" value={name} onChangeText={setName} autoCapitalize="words" />

@@ -31,8 +31,8 @@ export default function DocumentsScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Documents" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 12, gap: 12 }}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>{TABS.map(([k, l]) => <Pressable key={k} onPress={() => setTab(k)} style={{ height: 34, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: tab === k ? c.hero : c.border2, backgroundColor: tab === k ? c.hero : c.surface, justifyContent: "center" }}><RNText style={S(13, "600", tab === k ? "#fff" : c.text2)}>{l}</RNText></Pressable>)}</ScrollView>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 12, gap: 12 }}>
+        <ScrollView automaticallyAdjustKeyboardInsets horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>{TABS.map(([k, l]) => <Pressable key={k} onPress={() => setTab(k)} style={{ height: 34, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: tab === k ? c.hero : c.border2, backgroundColor: tab === k ? c.hero : c.surface, justifyContent: "center" }}><RNText style={S(13, "600", tab === k ? "#fff" : c.text2)}>{l}</RNText></Pressable>)}</ScrollView>
         {docs.length === 0 && <View style={{ borderRadius: 16, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, padding: 24, alignItems: "center" }}><RNText style={S(13.5, "400", c.text4)}>Nothing here yet.</RNText></View>}
         {docs.map((d) => { const [ext, tn] = EXT[d.type] ?? ["DOC", "info"]; const [bg, fg] = tone(tn); return (
           <Pressable key={d.id} onPress={() => open(d)} style={{ flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 14, padding: 12, paddingHorizontal: 14 }}>

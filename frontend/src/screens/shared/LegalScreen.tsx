@@ -22,7 +22,7 @@ export default function LegalScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title={params.kind === "terms" ? "Terms & Conditions" : "Privacy Policy"} onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 18 }}><RNText style={S(12.5, "400", c.text4)}>Last updated {doc.updated}</RNText>{doc.sections.map(([h, p]) => <View key={h} style={{ gap: 4 }}><RNText style={S(15, "600")}>{h}</RNText><RNText style={{ ...S(14, "400", c.text3), lineHeight: 20 }}>{p}</RNText></View>)}</ScrollView>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, gap: 18 }}><RNText style={S(12.5, "400", c.text4)}>Last updated {doc.updated}</RNText>{doc.sections.map(([h, p]) => <View key={h} style={{ gap: 4 }}><RNText style={S(15, "600")}>{h}</RNText><RNText style={{ ...S(14, "400", c.text3), lineHeight: 20 }}>{p}</RNText></View>)}</ScrollView>
     </SafeAreaView>
   );
 }

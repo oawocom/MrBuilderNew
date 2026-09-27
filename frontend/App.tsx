@@ -12,6 +12,9 @@ import { useEffect } from "react";
 import { navigationRef } from "./src/navigation";
 import { payloadOf } from "./src/push/push";
 import { APP_VARIANT } from "./src/api/client";
+import OfflineBanner from "./src/components/OfflineBanner";
+import BadgeSync from "./src/components/BadgeSync";
+import UploadIndicator from "./src/components/UploadIndicator";
 
 export default function App() {
   const [loaded] = useFonts({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold });
@@ -30,6 +33,9 @@ export default function App() {
           <RequestDraftProvider>
             <StatusBar style="auto" />
             <RootNavigator />
+            <OfflineBanner />
+            <BadgeSync />
+            <UploadIndicator />
           </RequestDraftProvider>
           </ContentProvider>
         </SessionProvider>

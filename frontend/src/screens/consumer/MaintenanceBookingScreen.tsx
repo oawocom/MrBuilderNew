@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Field, PrimaryButton } from "../../components/form";
+import { DateField } from "../../components/DateField";
 import { ChoiceRow, Header, Note, PickerSheet, Section, SelectField } from "../../components/sheet";
 import { api } from "../../api/client";
 import { useTheme } from "../../theme/ThemeProvider";
@@ -32,13 +33,13 @@ export default function MaintenanceBookingScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Book maintenance" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         <Note tone={left > 0 ? "info" : "warn"}>{left > 0 ? `Covered by your plan — ${left} of ${sub?.visits_per_year ?? 0} visits left this year. No charge.` : "No visits left this year. Extra visits are priced as a standard maintenance request."}</Note>
         <Section title="Which pergola?"><SelectField label="Pergola" value={pergolas.find((p) => p.id === f.pergola)?.name ?? ""} placeholder="Select" onPress={() => setPick(true)} /></Section>
         <Section title="Visit type"><View style={{ gap: 8 }}>{TYPES.map(([k, t, s]) => <ChoiceRow key={k} title={t} sub={s} on={f.type === k} onPress={() => setF({ ...f, type: k })} />)}</View></Section>
         <Section title="When?">
           <View style={{ gap: 6 }}><RNText style={S(13, "600", c.text2)}>Urgency</RNText><View style={{ flexDirection: "row", gap: 8 }}>{URG.map(([k, t, s]) => <View key={k} style={{ flex: 1 }}><ChoiceRow title={t} sub={s} on={f.urg === k} onPress={() => setF({ ...f, urg: k })} /></View>)}</View></View>
-          <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><Field label="Earliest" value={f.start} onChangeText={(v) => setF({ ...f, start: v })} placeholder="YYYY-MM-DD" /></View><View style={{ flex: 1 }}><Field label="Latest" value={f.end} onChangeText={(v) => setF({ ...f, end: v })} placeholder="YYYY-MM-DD" /></View></View>
+          <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><DateField label="Earliest" value={f.start} onChange={(v) => setF({ ...f, start: v })} minimumDate={new Date()} /></View><View style={{ flex: 1 }}><DateField label="Latest" value={f.end} onChange={(v) => setF({ ...f, end: v })} minimumDate={f.start ? new Date(f.start) : new Date()} /></View></View>
           <Field label="Anything the technician should know?" value={f.notes} onChangeText={(v) => setF({ ...f, notes: v })} placeholder="Gate code, pets, known issues…" />
         </Section>
       </ScrollView>

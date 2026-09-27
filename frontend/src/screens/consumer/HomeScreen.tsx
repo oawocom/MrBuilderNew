@@ -71,7 +71,7 @@ export default function HomeScreen() {
     setJobs(j.data ?? []); setPergolas(p.data ?? []); setDraft(d.data?.[0] ?? null); setUnread(n.meta?.unread ?? 0);
     loadWeather(p.data ?? [], 0);
   }, [loadWeather]);
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(useCallback(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); }, [load]));
 
   const hour = new Date().getHours(); const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const primary = jobs[0]; const st = primary ? stageOf(primary) : null;
@@ -94,7 +94,7 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 20 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 20 }}>
         {draft && (
           <View style={{ flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: c.primarySoft, borderWidth: 1, borderColor: c.orangeBd, borderRadius: 16, padding: 14 }}>
             <View style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: c.surface, alignItems: "center", justifyContent: "center" }}><Ionicons name="document-text-outline" size={20} color={c.primary} /></View>
@@ -157,7 +157,7 @@ export default function HomeScreen() {
           {pergolas.length === 0 ? (
             <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 16, padding: 20, alignItems: "center", gap: 6 }}><View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: c.surface2, alignItems: "center", justifyContent: "center" }}><Ionicons name="cube-outline" size={20} color={c.text4} /></View><RNText style={S(14.5, "600")}>No pergolas added</RNText><RNText style={{ ...S(13, "400", c.text4), textAlign: "center" }}>Save your pergola's specs to speed up quotes, warranties and support calls.</RNText><Pressable onPress={() => nav.navigate("AddPergola", { persist: true })} style={{ marginTop: 8, height: 40, paddingHorizontal: 16, borderRadius: 10, backgroundColor: c.primarySoft, flexDirection: "row", alignItems: "center", gap: 6 }}><Ionicons name="add" size={18} color={c.orange} /><RNText style={S(13.5, "600", c.orange)}>Add a pergola</RNText></Pressable></View>
           ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>{pergolas.map((p) => (
+            <ScrollView automaticallyAdjustKeyboardInsets horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>{pergolas.map((p) => (
               <Pressable key={p.id} onPress={() => nav.navigate("PergolaDetail", { id: p.id })} style={{ width: 200, backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 16, overflow: "hidden" }}>
                 {p.photo_url ? <Image source={{ uri: p.photo_url }} style={{ height: 118 }} /> : <View style={{ height: 118, backgroundColor: c.hero, alignItems: "center", justifyContent: "center", gap: 6 }}><Ionicons name="image-outline" size={22} color="rgba(255,255,255,.7)" /><RNText style={S(12, "400", "rgba(255,255,255,.7)")}>Pergola photo</RNText></View>}
                 <View style={{ paddingHorizontal: 12, paddingVertical: 10, gap: 2 }}><RNText style={S(14, "600")} numberOfLines={1}>{p.name}</RNText><RNText style={S(12, "400", c.text4)}>{[p.structure_type?.replace("_", " "), p.width_ft && p.length_ft ? `${p.width_ft}×${p.length_ft} ft` : null].filter(Boolean).join(" · ")}</RNText></View>

@@ -26,7 +26,7 @@ export default function RemindersScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Maintenance reminders" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, gap: 12 }}>
         {perg && <View><RNText style={S(20, "700")}>{perg.name}</RNText><RNText style={S(13.5, "400", c.text3)}>{[perg.structure_type?.replace("_", " "), perg.brand, perg.installed_at ? `installed ${new Date(perg.installed_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}` : null].filter(Boolean).join(" · ")}. Reminders are based on the manufacturer's care schedule.</RNText></View>}
         {list.length === 0 && <View style={{ borderRadius: 16, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, padding: 24, alignItems: "center" }}><RNText style={S(13.5, "400", c.text4)}>No reminders yet — they're created after an installation or MrCare plan.</RNText></View>}
         {list.map((r) => { const k = KIND[r.kind] ?? { t: r.title ?? r.kind.replace(/_/g, " "), s: "", icon: "notifications-outline" as const }; const on = r.status !== "dismissed"; const [dt, col] = due(r.due_at); return (

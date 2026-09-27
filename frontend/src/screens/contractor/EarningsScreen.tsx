@@ -32,7 +32,7 @@ export default function EarningsScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Payments & Transactions" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, gap: 12 }}>
         {loading && [1, 2, 3].map((k) => <View key={k} style={{ height: 112, borderRadius: 16, backgroundColor: c.surface2 }} />)}
         {!loading && <>
           <View style={{ backgroundColor: c.hero, borderRadius: 16, padding: 18, gap: 16 }}>
@@ -48,7 +48,7 @@ export default function EarningsScreen() {
           </View>
           <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 16, padding: 16, gap: 12 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><RNText style={S(15, "600")}>Recent transactions</RNText><Pressable onPress={() => setShowAll(!showAll)}><RNText style={S(13, "600", c.orange)}>{showAll ? "Show less" : "See all"}</RNText></Pressable></View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>{kinds.map((k) => <Pressable key={k} onPress={() => setFilter(k)} style={{ height: 30, paddingHorizontal: 12, borderRadius: 999, backgroundColor: filter === k ? c.hero : c.surface2, justifyContent: "center" }}><RNText style={S(12.5, "600", filter === k ? "#fff" : c.text2)}>{k}</RNText></Pressable>)}</ScrollView>
+            <ScrollView automaticallyAdjustKeyboardInsets horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 6 }}>{kinds.map((k) => <Pressable key={k} onPress={() => setFilter(k)} style={{ height: 30, paddingHorizontal: 12, borderRadius: 999, backgroundColor: filter === k ? c.hero : c.surface2, justifyContent: "center" }}><RNText style={S(12.5, "600", filter === k ? "#fff" : c.text2)}>{k}</RNText></Pressable>)}</ScrollView>
             {list.length === 0 && <RNText style={S(13, "400", c.text4)}>No transactions yet.</RNText>}
             {list.map((t) => { const [ic, bg, fg] = icon(t); return <Pressable key={t.id} onPress={() => nav.navigate("TransactionDetail", { id: t.id })} style={{ flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 8 }}><View style={{ width: 38, height: 38, borderRadius: 12, backgroundColor: bg, alignItems: "center", justifyContent: "center" }}><Ionicons name={ic} size={18} color={fg} /></View><View style={{ flex: 1 }}><RNText style={S(14.5, "500")} numberOfLines={1}>{t.description ?? t.type.replace(/_/g, " ")}</RNText><RNText style={S(12.5, "400", c.text4)}>{new Date(t.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}{t.request_code ? ` · ${t.request_code}` : ""} · {t.status}</RNText></View><RNText style={S(15, "600", t.amount < 0 ? c.text : "#079455")}>{t.amount < 0 ? "– " : "+ "}{money(Math.abs(t.amount))}</RNText></Pressable>; })}
           </View>

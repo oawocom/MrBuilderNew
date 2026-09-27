@@ -46,10 +46,11 @@ export default function QuoteScreen() {
   const lines = insp ? [["On-site inspection · 1 visit", money(j?.inspection_fee ?? 99)], ["Credited toward the job if you proceed", `−${money(j?.inspection_fee ?? 99)}`]] : (quote?.line_items ?? []).map((l) => [l.label + (l.qty !== 1 ? ` × ${l.qty}` : ""), money(l.amount)]);
   const rows = j ? [["Service", "Installation"], ["Address", [j.location_address, j.location_city, j.location_state].filter(Boolean).join(", ")], ["Property", "Residential"], ["Mounting", j.mounting === "attached" ? "Attached" : "Free standing"], ["Notes", j.notes ?? "—"]] : [];
 
+  const go = (fn: () => void) => { setReceived(false); setTimeout(fn, 350); };
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title={phase < 3 ? "Preparing your quote" : insp ? "Inspection scheduled" : "Your quote"} onBack={() => nav.navigate("Tabs", { screen: "Requests" })} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 16 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 16 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}><View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: c.primarySoft, alignItems: "center", justifyContent: "center" }}><Ionicons name={insp ? "person-outline" : "sparkles-outline"} size={22} color={c.primary} /></View><View style={{ flex: 1 }}><RNText style={S(20, "700")}>{phase < 3 ? "Preparing your quote" : insp ? "Inspection scheduled" : "Your quote is ready"}</RNText><RNText style={S(13.5, "400", c.text3)}>{phase < 3 ? "Our AI is analyzing your request and will generate an estimate shortly." : insp ? "An inspector will visit before work starts. Below is the inspection fee and your request." : "Review the estimate below. Nothing is charged until you approve."}</RNText></View></View>
 
         {phase < 3 ? (
@@ -74,7 +75,7 @@ export default function QuoteScreen() {
               {rows.map(([k, v]) => <View key={k} style={{ flexDirection: "row", gap: 12, paddingVertical: 12, paddingHorizontal: 16, borderTopWidth: 1, borderTopColor: c.border }}><RNText style={{ width: 90, ...S(13.5, "400", c.text4) }}>{k}</RNText><RNText style={{ flex: 1, textAlign: "right", ...S(14, "600") }}>{v}</RNText></View>)}
               <View style={{ paddingVertical: 12, paddingHorizontal: 16, borderTopWidth: 1, borderTopColor: c.border, gap: 8 }}><RNText style={S(13.5, "400", c.text4)}>Pergola{params.others ? "s" : ""}</RNText>
                 <View style={{ padding: 10, borderRadius: 10, backgroundColor: c.surface2, gap: 6 }}><View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}><View style={{ width: 28, height: 28, borderRadius: 7, backgroundColor: c.hero }} /><RNText style={S(14, "600")}>{j.title}</RNText><RNText style={S(12, "400", c.text4)}>{(spec as { type?: string }).type ?? spec.structure_type}</RNText></View>
-                  {[["Size", `${j.width_ft} × ${j.length_ft} × ${j.height_ft} ft`], ["Enclosures", spec.enclosures?.length ? spec.enclosures.map((e) => (e as { label?: string }).label ?? e.type).join(", ") : "None"], ["Footings", spec.footings?.involved ? `${spec.footings.count} · ${spec.footings.ready ? "ready" : "not ready"}` : "None"], ["Accessories", spec.accessories?.length ? spec.accessories.map((a) => `${a.qty}× ${(a as { label?: string }).label ?? a.type}`).join(", ") : "None"]].map(([k, v]) => <View key={k} style={{ flexDirection: "row", gap: 10, paddingTop: 6 }}><RNText style={{ width: 80, ...S(12.5, "400", c.text4) }}>{k}</RNText><RNText style={{ flex: 1, ...S(12.5, "500") }}>{v}</RNText></View>)}
+                  {[["Size", `${j.width_ft} × ${j.length_ft} × ${j.height_ft} ft`], ["Enclosures", spec.enclosures?.length ? spec.enclosures.map((e) => (e as { label?: string }).label ?? e.type).join(", ") : "None"], ["Footings", spec.footings?.involved ? `${spec.footings.count} · ${spec.footings.ready ? "ready" : "not ready"}` : "None"], ["Accessories", spec.accessories?.length ? spec.accessories.map((a) => `${a.qty}× ${((a as { label?: string }).label ?? a.type).replace(/_/g, " ").replace(/^\w/, (ch) => ch.toUpperCase())}`).join(", ") : "None"]].map(([k, v]) => <View key={k} style={{ flexDirection: "row", gap: 10, paddingTop: 6 }}><RNText style={{ width: 80, ...S(12.5, "400", c.text4) }}>{k}</RNText><RNText style={{ flex: 1, ...S(12.5, "500") }}>{v}</RNText></View>)}
                 </View>
                 {!!params.others && <RNText style={S(12.5, "400", c.text4)}>+ {params.others} more pergola request{params.others > 1 ? "s" : ""} created — see Requests.</RNText>}
               </View>
@@ -86,13 +87,13 @@ export default function QuoteScreen() {
         <PrimaryButton title={phase < 3 ? "Generating…" : insp ? "Book inspection" : "Submit request"} onPress={approve} disabled={phase < 3} loading={busy} />
         <RNText style={{ textAlign: "center", ...S(12, "400", c.text4) }}>{phase < 3 ? "You can leave this screen — we'll notify you when it's ready." : insp ? `${money(j?.inspection_fee ?? 99)} charged when the inspector is booked · credited to the job` : "Approving sends your request to qualified PROs. You pay only after confirming the work."}</RNText>
       </View>
-      <Sheet open={received} onClose={() => {}}>
+      <Sheet open={received} onClose={() => go(() => nav.navigate("Tabs", { screen: "Home" }))}>
         <View style={{ alignItems: "center", gap: 16, paddingVertical: 8 }}>
           <View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: c.okBg, alignItems: "center", justifyContent: "center" }}><Ionicons name="checkmark" size={36} color={c.ok} /></View>
           <View style={{ alignItems: "center", gap: 6 }}><RNText style={S(20, "700")}>Request received</RNText><RNText style={{ ...S(14, "400", c.text3), textAlign: "center", lineHeight: 20 }}>{insp ? "An inspector will be assigned shortly. We'll message you with the visit time." : "A MrBuilder PRO contractor will be assigned within the next few hours. We'll message you as soon as that happens."}</RNText></View>
           <View style={{ flexDirection: "row", gap: 8, alignItems: "center", padding: 8, paddingHorizontal: 12, borderRadius: 10, backgroundColor: c.surface2 }}><RNText style={S(12.5, "600")}>Request ID</RNText><RNText style={S(12.5, "400", c.text3)}>{j?.request_code} · {money(insp ? j?.inspection_fee : j?.quote_total)}</RNText></View>
         </View>
-        <View style={{ gap: 10 }}><PrimaryButton title="View request" onPress={() => nav.replace("RequestDetail", { id: params.id })} /><SecondaryButton title="Back to home" onPress={() => nav.navigate("Tabs", { screen: "Home" })} /></View>
+        <View style={{ gap: 10 }}><PrimaryButton title="View request" onPress={() => go(() => nav.replace("RequestDetail", { id: params.id }))} /><SecondaryButton title="Back to home" onPress={() => go(() => nav.navigate("Tabs", { screen: "Home" }))} /></View>
       </Sheet>
     </SafeAreaView>
   );

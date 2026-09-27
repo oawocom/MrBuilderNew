@@ -32,7 +32,7 @@ export default function ReportIssueScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Report an issue" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 20 }} keyboardShouldPersistTaps="handled">
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 20 }} keyboardShouldPersistTaps="handled">
         <Note tone="warn">Payment stays on hold. Your PRO will see your report and photos and can come back to fix the remaining work, or dispute it for MrBuilder to review.</Note>
         <Section title="What isn't right?">
           <View style={{ gap: 8 }}>{REASONS.map(([k, l]) => <Pressable key={k} onPress={() => setReason(k)} style={{ height: 52, borderRadius: 12, borderWidth: 1.5, borderColor: reason === k ? c.primary : c.border2, backgroundColor: reason === k ? c.primarySoft : c.surface, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}><RNText style={S(14.5, "600")}>{l}</RNText><View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: reason === k ? c.primary : c.border2, alignItems: "center", justifyContent: "center" }}>{reason === k && <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: c.primary }} />}</View></Pressable>)}</View>

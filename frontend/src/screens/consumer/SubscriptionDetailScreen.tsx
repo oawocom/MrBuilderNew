@@ -30,7 +30,7 @@ export default function SubscriptionDetailScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Manage plan" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, gap: 16 }}>
         <View style={{ borderRadius: 20, backgroundColor: c.hero, padding: 18, gap: 14, overflow: "hidden" }}><View style={{ position: "absolute", right: -50, top: -60, width: 160, height: 160, borderRadius: 80, backgroundColor: isM ? c.primary : "#079455" }} />
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start" }}><View style={{ gap: 2 }}><RNText style={S(12, "400", "#B7BAC1")}>{offerName}</RNText><RNText style={S(22, "800", "#fff")}>{plan?.name ?? s.plan}</RNText></View><View style={{ height: 24, paddingHorizontal: 9, borderRadius: 999, backgroundColor: "rgba(74,222,128,.18)", justifyContent: "center" }}><RNText style={S(11.5, "600", "#4ADE80")}>{s.status === "active" ? "Active" : s.status}</RNText></View></View>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" }}><View style={{ gap: 2 }}><RNText style={S(11, "700", "#B7BAC1")}>RENEWS ON</RNText><RNText style={S(15, "600", "#fff")}>{renew}</RNText></View><RNText style={S(20, "800", "#fff")}>{money(s.price_total)}<RNText style={S(13, "500", "#B7BAC1")}>/yr</RNText></RNText></View>

@@ -23,7 +23,7 @@ export default function PergolasScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="My pergolas" onBack={() => nav.goBack()} right={<Pressable onPress={() => nav.navigate("AddPergola", { persist: true })} style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: c.primary, alignItems: "center", justifyContent: "center" }}><Ionicons name="add" size={22} color="#fff" /></Pressable>} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 12, gap: 12 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 12, gap: 12 }}>
         {list.length === 0 ? (
           <View style={{ alignItems: "center", gap: 8, paddingTop: 64, paddingHorizontal: 24 }}><View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: c.surface2, alignItems: "center", justifyContent: "center" }}><Ionicons name="cube-outline" size={30} color={c.text4} /></View><RNText style={S(17, "700")}>No pergolas yet</RNText><RNText style={{ ...S(14, "400", c.text4), textAlign: "center" }}>Save your pergola's specs once — quotes, warranties and support get faster.</RNText><Pressable onPress={() => nav.navigate("AddPergola", { persist: true })} style={{ marginTop: 8, height: 48, paddingHorizontal: 20, borderRadius: 12, backgroundColor: c.primary, flexDirection: "row", alignItems: "center", gap: 8 }}><Ionicons name="add" size={18} color="#fff" /><RNText style={S(15, "600", "#fff")}>Add a pergola</RNText></Pressable></View>
         ) : (

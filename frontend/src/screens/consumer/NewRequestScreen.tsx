@@ -25,7 +25,7 @@ export default function NewRequestScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 12, paddingVertical: 6, backgroundColor: c.surface, borderBottomWidth: 1, borderBottomColor: c.border }}><Pressable onPress={() => nav.goBack()} style={{ width: 40, height: 40, alignItems: "center", justifyContent: "center" }}><Ionicons name="chevron-back" size={24} color={c.text} /></Pressable><RNText style={S(17, "700")}>New request</RNText></View>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 20, gap: 16 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 20, gap: 16 }}>
         <View><RNText style={S(24, "800")}>What do you need?</RNText><RNText style={{ ...S(14, "400", c.text3), marginTop: 4 }}>Choose one to start a request. You can add details on the next screen.</RNText></View>
         {[{ t: "Install a pergola", s: "Get an instant quote for a new installation.", icon: "construct-outline" as const, bg: c.primarySoft, fg: c.primary, go: () => nav.navigate("InstallForm", {}) }, { t: "Repair or maintain", s: "Tell us what you need and schedule an inspector visit.", icon: "build-outline" as const, bg: c.infoBg, fg: c.info, go: () => nav.navigate("RepairForm") }].map((a) => (
           <Pressable key={a.t} onPress={a.go} style={({ pressed }) => ({ flexDirection: "row", alignItems: "center", gap: 14, backgroundColor: c.surface, borderWidth: 1, borderColor: pressed ? c.orangeBd : c.border, borderRadius: 16, padding: 16 })}>
@@ -36,7 +36,7 @@ export default function NewRequestScreen() {
         ))}
         <View style={{ gap: 10, marginTop: 4 }}>
           <RNText style={S(12, "700", c.text4)}>FROM MRCARE</RNText>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+          <ScrollView automaticallyAdjustKeyboardInsets horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
             <Promo accent="#EF6820" label="Service & Maintenance" title="Keep your pergola in great shape" text="Explore Essential, Plus, and Premium maintenance plans." cta="Explore Maintenance" onPress={() => nav.navigate("Tabs", { screen: "MrCare" } as never)} />
             <Promo accent="#079455" label="Electronics Protection" title="Protect your pergola's electronics" text="Explore coverage for eligible motors, controls, and lighting." cta="Explore Protection" onPress={() => nav.navigate("Tabs", { screen: "MrCare" } as never)} />
           </ScrollView>

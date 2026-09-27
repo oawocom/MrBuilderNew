@@ -38,7 +38,7 @@ export default function ElectronicsClaimScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Electronics claim" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }} keyboardShouldPersistTaps="handled">
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }} keyboardShouldPersistTaps="handled">
         <Note tone="info">Covered by Electronics Protection · {sub ? `${Math.max(0, 2 - sub.claims_used)} of 2 claims left this year` : ""}. Submitting doesn't guarantee coverage — MrBuilder reviews each claim first.</Note>
         <Section title="Which pergola?"><SelectField label="Pergola" value={pergolas.find((p) => p.id === f.pergola)?.name ?? ""} placeholder="Select" onPress={() => setPick("pergola")} /></Section>
         <Section title="Which device?">

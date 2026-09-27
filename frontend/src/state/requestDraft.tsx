@@ -1,5 +1,5 @@
 // In-memory draft of an installation request (pergolas list) shared between form and Add-pergola screens.
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 export interface Enclosure { type: string; w: string; l: string; h: string; loc?: string }
 export interface PergolaSpec { key: string; type: string; brand: string; name: string; units: "ft" | "m"; w: string; l: string; h: string; attach: "attached" | "detached"; encOn: boolean; enc: Enclosure[]; footOn: boolean; footN: string; footReady: boolean; acc: Record<string, number>; photos: string[]; plans: string[] }
@@ -8,7 +8,11 @@ export const emptyPergola = (): PergolaSpec => ({ key: String(Date.now()), type:
 const Ctx = createContext<{ pergolas: PergolaSpec[]; upsert: (p: PergolaSpec) => void; remove: (key: string) => void; reset: () => void }>(null as never);
 export function RequestDraftProvider({ children }: { children: React.ReactNode }) {
   const [pergolas, setPergolas] = useState<PergolaSpec[]>([]);
-  return <Ctx.Provider value={{ pergolas, upsert: (p) => setPergolas((l) => (l.some((x) => x.key === p.key) ? l.map((x) => (x.key === p.key ? p : x)) : [...l, p])), remove: (key) => setPergolas((l) => l.filter((x) => x.key !== key)), reset: () => setPergolas([]) }}>{children}</Ctx.Provider>;
+  const upsert = useCallback((p: PergolaSpec) => setPergolas((l) => (l.some((x) => x.key === p.key) ? l.map((x) => (x.key === p.key ? p : x)) : [...l, p])), []);
+  const remove = useCallback((key: string) => setPergolas((l) => l.filter((x) => x.key !== key)), []);
+  const reset = useCallback(() => setPergolas([]), []);
+  const value = useMemo(() => ({ pergolas, upsert, remove, reset }), [pergolas, upsert, remove, reset]);
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 export const useRequestDraft = () => useContext(Ctx);
 

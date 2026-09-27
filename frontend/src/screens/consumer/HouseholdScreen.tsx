@@ -28,7 +28,7 @@ export default function HouseholdScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Household" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, gap: 12 }}>
         <Note tone="info">Members you add can let the contractor in and, if allowed, acknowledge finished work. Only you approve quotes and release payment. Contractors see their name and phone on the job.</Note>
         {members.map((m) => { const n = m.member ? `${m.member.first_name} ${m.member.last_name}` : m.name ?? m.email ?? "Invited"; return (
           <View key={m.id} style={{ flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 14, padding: 12, paddingHorizontal: 14 }}>

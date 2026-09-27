@@ -1,5 +1,6 @@
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
+import * as ImageManipulator from "expo-image-manipulator";
 
 export const API_URL: string = Constants.expoConfig?.extra?.apiUrl ?? "https://mrbuilder.com/api/v1";
 export const APP_VARIANT: "consumer" | "contractor" = Constants.expoConfig?.extra?.variant ?? "consumer";
@@ -10,6 +11,15 @@ const K = { access: "mrb_access", refresh: "mrb_refresh" };
 let accessToken: string | null = null;
 let refreshing: Promise<boolean> | null = null;
 let onUnauthorized: (() => void) | null = null;
+
+// Network status: screens can't all handle errors, so the app shows one global banner.
+const netSubs = new Set<(off: boolean) => void>();
+let offline = false;
+export const net = {
+  get offline() { return offline; },
+  set(off: boolean) { if (off === offline) return; offline = off; netSubs.forEach((f) => f(off)); },
+  subscribe(f: (off: boolean) => void) { netSubs.add(f); f(offline); return () => { netSubs.delete(f); }; },
+};
 
 export const tokens = {
   async load() { accessToken = await SecureStore.getItemAsync(K.access); return accessToken; },
@@ -47,21 +57,45 @@ export async function api<T = unknown>(path: string, opts: { method?: string; bo
       onUnauthorized?.();
       return { success: false, error: "Session expired" };
     }
+    net.set(false);
     const text = await res.text();
     try { return JSON.parse(text) as ApiResponse<T>; } catch { return { success: res.ok, error: res.ok ? undefined : `HTTP ${res.status}` }; }
   } catch (e) {
-    return { success: false, error: "No connection. Check your internet and try again." };
+    net.set(true);
+    return { success: false, error: "No internet connection. Check your network and try again." };
   }
 }
 
-// Upload a local file (uri) via a presigned URL. Returns the public URL.
+// In-flight upload counter so the app can show one global "Uploading…" indicator.
+const upSubs = new Set<(n: number) => void>();
+let inflight = 0;
+export const uploads = {
+  subscribe(f: (n: number) => void) { upSubs.add(f); f(inflight); return () => { upSubs.delete(f); }; },
+};
+function track(d: number) { inflight = Math.max(0, inflight + d); upSubs.forEach((f) => f(inflight)); }
+
+// Shrink photos before upload: longest side 1600px, JPEG 80% (a 4–8 MB camera shot becomes ~300 KB).
+async function compressImage(uri: string): Promise<{ uri: string; contentType: string }> {
+  try {
+    const r = await ImageManipulator.manipulateAsync(uri, [{ resize: { width: 1600 } }], { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG });
+    return { uri: r.uri, contentType: "image/jpeg" };
+  } catch { return { uri, contentType: "image/jpeg" }; }
+}
+
+// Upload a local file (uri) via a presigned URL. Returns the public URL. Images are compressed first.
 export async function uploadFile(uri: string, purpose: string, contentType = "image/jpeg"): Promise<string | null> {
-  const name = uri.split("/").pop() ?? `photo-${Date.now()}.jpg`;
-  const r = await api<{ upload_url: string; public_url: string; headers: Record<string, string> }>("/uploads", { method: "POST", body: { filename: name, content_type: contentType, purpose } });
-  if (!r.success || !r.data) return null;
-  const blob = await (await fetch(uri)).blob();
-  const put = await fetch(r.data.upload_url, { method: "PUT", headers: r.data.headers, body: blob });
-  return put.ok ? r.data.public_url : null;
+  track(1);
+  try {
+    let src = uri;
+    if (contentType.startsWith("image/")) { const c = await compressImage(uri); src = c.uri; contentType = c.contentType; }
+    const base = (uri.split("/").pop() ?? `photo-${Date.now()}`).replace(/\.[a-z0-9]+$/i, "");
+    const name = contentType === "image/jpeg" ? `${base}.jpg` : (uri.split("/").pop() ?? `file-${Date.now()}`);
+    const r = await api<{ upload_url: string; public_url: string; headers: Record<string, string> }>("/uploads", { method: "POST", body: { filename: name, content_type: contentType, purpose } });
+    if (!r.success || !r.data) return null;
+    const blob = await (await fetch(src)).blob();
+    const put = await fetch(r.data.upload_url, { method: "PUT", headers: r.data.headers, body: blob });
+    return put.ok ? r.data.public_url : null;
+  } catch { return null; } finally { track(-1); }
 }
 
 // ---- shared types ----

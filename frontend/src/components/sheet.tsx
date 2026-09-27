@@ -1,19 +1,23 @@
+import { useIsFocused } from "@react-navigation/native";
 import React from "react";
-import { Modal, Pressable, ScrollView, Text as RNText, View, TextInput } from "react-native";
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, Text as RNText, TextInput, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTheme } from "../theme/ThemeProvider";
 import { font } from "../theme/tokens";
 
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title?: string; children: React.ReactNode }) {
   const { c } = useTheme();
+  const focused = useIsFocused(); // a native modal left open while its screen navigates away gets stuck on iOS
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
-      <Pressable onPress={onClose} style={{ flex: 1, backgroundColor: "rgba(0,0,0,.45)" }} />
-      <View style={{ backgroundColor: c.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 16, paddingBottom: 34, gap: 16, maxHeight: "85%" }}>
-        <View style={{ alignSelf: "center", width: 40, height: 4, borderRadius: 2, backgroundColor: c.border2 }} />
-        {title && <RNText style={{ fontFamily: font.bold, fontSize: 19, letterSpacing: -0.3, color: c.text }}>{title}</RNText>}
-        {children}
-      </View>
+    <Modal visible={open && focused} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1, justifyContent: "flex-end" }}>
+        <Pressable onPress={onClose} style={{ flex: 1, backgroundColor: "rgba(0,0,0,.45)" }} />
+        <View style={{ backgroundColor: c.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 16, paddingBottom: 34, gap: 16, maxHeight: "85%" }}>
+          <View style={{ alignSelf: "center", width: 40, height: 4, borderRadius: 2, backgroundColor: c.border2 }} />
+          {title && <RNText style={{ fontFamily: font.bold, fontSize: 19, letterSpacing: -0.3, color: c.text }}>{title}</RNText>}
+          {children}
+        </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

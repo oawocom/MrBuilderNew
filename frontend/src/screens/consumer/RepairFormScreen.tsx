@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Field, PrimaryButton } from "../../components/form";
+import { DateField } from "../../components/DateField";
 import { ChoiceRow, Header, PickerSheet, Section, SelectField, Sheet } from "../../components/sheet";
 import { useTheme } from "../../theme/ThemeProvider";
 import { font } from "../../theme/tokens";
@@ -54,7 +55,7 @@ export default function RepairFormScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Repair or maintenance" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }} keyboardShouldPersistTaps="handled" automaticallyAdjustKeyboardInsets>
         <Section title="Which pergola?">
           <SelectField label="Pergola" value={perg ? `${perg.name}${perg.city ? ` · ${perg.city}` : ""}` : ""} placeholder={pergolas.length ? "Select a pergola" : "No saved pergolas yet"} onPress={() => pergolas.length && setPick("pergola")} />
           <Pressable onPress={() => nav.navigate("AddPergola", {})} style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: -6 }}><Ionicons name="add" size={16} color={c.primary} /><RNText style={S(13, "600", c.primary)}>Add a different pergola</RNText></Pressable>
@@ -65,8 +66,8 @@ export default function RepairFormScreen() {
           <View style={{ gap: 6 }}><RNText style={S(13, "600", c.text2)}>Urgency</RNText><View style={{ flexDirection: "row", gap: 8 }}>{URG.map(([k, t, s]) => <Pressable key={k} onPress={() => setF({ ...f, urg: k })} style={{ flex: 1, height: 48, borderRadius: 10, borderWidth: 1.5, borderColor: f.urg === k ? c.primary : c.border2, backgroundColor: f.urg === k ? c.primarySoft : c.surface, alignItems: "center", justifyContent: "center", gap: 1 }}><RNText style={S(14, "600")}>{t}</RNText><RNText style={S(12, "500", f.urg === k ? c.orange : c.text4)}>{s}</RNText></Pressable>)}</View></View>
         </Section>
         <Section title="When can we come?">
-          <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><Field label="Start date" value={f.start} onChangeText={(v) => setF({ ...f, start: v })} placeholder="YYYY-MM-DD" /></View><View style={{ flex: 1 }}><Field label="Deadline" value={f.end} onChangeText={(v) => setF({ ...f, end: v })} placeholder="YYYY-MM-DD" error={f.start && f.end && f.end < f.start ? "After start date" : null} /></View></View>
-          <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><Field label="From" value={f.from} onChangeText={(v) => setF({ ...f, from: v })} placeholder="9:00 AM" /></View><View style={{ flex: 1 }}><Field label="Until" value={f.until} onChangeText={(v) => setF({ ...f, until: v })} placeholder="5:00 PM" /></View></View>
+          <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><DateField label="Start date" value={f.start} onChange={(v) => setF({ ...f, start: v })} minimumDate={new Date()} /></View><View style={{ flex: 1 }}><DateField label="Deadline" value={f.end} onChange={(v) => setF({ ...f, end: v })} minimumDate={f.start ? new Date(f.start) : new Date()} error={f.start && f.end && f.end < f.start ? "After start date" : null} /></View></View>
+          <View style={{ flexDirection: "row", gap: 10 }}><View style={{ flex: 1 }}><DateField mode="time" label="From" value={f.from} onChange={(v) => setF({ ...f, from: v })} placeholder="9:00 AM" /></View><View style={{ flex: 1 }}><DateField mode="time" label="Until" value={f.until} onChange={(v) => setF({ ...f, until: v })} placeholder="5:00 PM" /></View></View>
         </Section>
         <Section title="Photos of the issue" right={<RNText style={S(12.5, "400", c.text4)}>{Object.keys(photos).length + more.length} · up to 6</RNText>}>
           <View style={{ flexDirection: "row", gap: 8 }}>{SLOTS.map(([k, t, s]) => { const u = photos[k]; return (

@@ -59,7 +59,7 @@ export default function AddPergolaScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title={params?.key ? "Edit pergola" : "Add a pergola"} onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }} keyboardShouldPersistTaps="handled">
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 24 }} keyboardShouldPersistTaps="handled">
         <Section title="Pergola">
           <SelectField label="Type" value={p.type} placeholder="Select pergola type" onPress={() => setPick("type")} />
           <SelectField label="Brand" value={p.brand} placeholder="Select brand (optional)" onPress={() => setPick("brand")} />
@@ -114,7 +114,7 @@ export default function AddPergolaScreen() {
           </View>
         </Section>
         <Section title="Photos">
-          {p.photos.length ? <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>{p.photos.map((u, i) => <View key={i}><Image source={{ uri: u }} style={{ width: 140, height: 140, borderRadius: 16, backgroundColor: c.surface2 }} /><Pressable onPress={() => setP({ ...p, photos: p.photos.filter((_, k) => k !== i) })} style={{ position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: 8, backgroundColor: "rgba(0,0,0,.45)", alignItems: "center", justifyContent: "center" }}><Ionicons name="close" size={16} color="#fff" /></Pressable></View>)}</ScrollView>
+          {p.photos.length ? <ScrollView automaticallyAdjustKeyboardInsets horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>{p.photos.map((u, i) => <View key={i}><Image source={{ uri: u }} style={{ width: 140, height: 140, borderRadius: 16, backgroundColor: c.surface2 }} /><Pressable onPress={() => setP({ ...p, photos: p.photos.filter((_, k) => k !== i) })} style={{ position: "absolute", top: 8, right: 8, width: 28, height: 28, borderRadius: 8, backgroundColor: "rgba(0,0,0,.45)", alignItems: "center", justifyContent: "center" }}><Ionicons name="close" size={16} color="#fff" /></Pressable></View>)}</ScrollView>
             : <View style={{ height: 140, borderRadius: 16, borderWidth: 1, borderStyle: "dashed", borderColor: c.border2, backgroundColor: c.surface, alignItems: "center", justifyContent: "center", gap: 6 }}><Ionicons name="image-outline" size={26} color={c.text4} /><RNText style={S(13, "400", c.text4)}>Add a photo of your pergola</RNText></View>}
           <SecondaryButton title={busy ? "Uploading…" : "Upload photos"} icon={<Ionicons name="cloud-upload-outline" size={18} color={c.text} />} onPress={addPhoto} />
         </Section>

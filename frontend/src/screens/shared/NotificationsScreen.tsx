@@ -17,7 +17,7 @@ export default function NotificationsScreen() {
   const { c } = useTheme();
   const [items, setItems] = useState<N[]>([]); const [banner, setBanner] = useState(false);
   const load = useCallback(async () => { const r = await api<N[]>("/notifications?limit=50"); setItems(r.data ?? []); }, []);
-  useFocusEffect(useCallback(() => { load(); }, [load]));
+  useFocusEffect(useCallback(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); }, [load]));
   const S = (n: number, w: "400" | "600" | "700" = "400", col = c.text) => ({ fontSize: n, fontFamily: w === "400" ? font.regular : w === "600" ? font.semibold : font.bold, color: col });
   const tone = (k: string): [string, string, keyof typeof Ionicons.glyphMap] => /pause|issue|dispute|fail|cancel/.test(k) ? [c.errBg, c.err, "warning-outline"] : /paid|complete|confirm|approve|active/.test(k) ? [c.okBg, c.ok, "checkmark-circle-outline"] : /message|chat/.test(k) ? [c.surface2, c.text2, "chatbubble-outline"] : /quote|payment|invoice/.test(k) ? [c.primarySoft, c.primary, "receipt-outline"] : [c.infoBg, c.info, "notifications-outline"];
   const ago = (v: string) => { const d = new Date(v); const today = new Date().toDateString() === d.toDateString(); return `${today ? "Today" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" })} · ${d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`; };
@@ -27,7 +27,7 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Notifications" onBack={() => nav.goBack()} right={unread > 0 ? <Pressable onPress={readAll} style={{ height: 36, paddingHorizontal: 12, borderRadius: 10, backgroundColor: c.primarySoft, justifyContent: "center" }}><RNText style={S(13, "600", c.orange)}>Mark all read</RNText></Pressable> : undefined} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 12, gap: 10 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 12, gap: 10 }}>
         {banner && <View style={{ flexDirection: "row", alignItems: "center", gap: 10, padding: 12, paddingHorizontal: 14, borderRadius: 12, backgroundColor: c.okBg }}><Ionicons name="checkmark-circle-outline" size={18} color={c.ok} /><RNText style={S(13.5, "600", c.ok)}>All notifications marked as read.</RNText></View>}
         {items.length === 0 && <View style={{ alignItems: "center", gap: 8, paddingTop: 72, paddingHorizontal: 24 }}><View style={{ width: 72, height: 72, borderRadius: 36, backgroundColor: c.surface2, alignItems: "center", justifyContent: "center" }}><Ionicons name="notifications-off-outline" size={30} color={c.text4} /></View><RNText style={S(17, "700")}>You're all caught up</RNText><RNText style={{ ...S(14, "400", c.text4), textAlign: "center" }}>Updates on your requests, technicians and plans will appear here.</RNText></View>}
         {items.map((n) => { const [bg, fg, icon] = tone(n.kind ?? ""); return (

@@ -23,7 +23,7 @@ export default function ContractorProfileScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Technician" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, gap: 12 }}>
         {s && <>
           <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 16, padding: 18, paddingHorizontal: 16, alignItems: "center", gap: 8 }}>
             {s.avatar_url ? <Image source={{ uri: s.avatar_url }} style={{ width: 84, height: 84, borderRadius: 42 }} /> : <View style={{ width: 84, height: 84, borderRadius: 42, backgroundColor: c.info, alignItems: "center", justifyContent: "center" }}><RNText style={S(28, "700", "#fff")}>{s.name.split(" ").map((x) => x[0]).join("").slice(0, 2)}</RNText></View>}

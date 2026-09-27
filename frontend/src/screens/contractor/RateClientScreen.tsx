@@ -24,7 +24,7 @@ export default function RateClientScreen() {
   if (stage === "confirmed") return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Job confirmed" />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 24, gap: 20 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 24, gap: 20 }}>
         <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: c.okBg, alignItems: "center", justifyContent: "center" }}><View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: "#079455", alignItems: "center", justifyContent: "center" }}><Ionicons name="checkmark" size={24} color="#fff" /></View></View>
         <View><RNText style={S(22, "700")}>Job confirmed</RNText><RNText style={S(14, "400", c.text3)}>The client has confirmed the completion of the job. Well done!</RNText></View>
         {j && <View style={{ backgroundColor: c.surface, borderWidth: 1, borderColor: c.border, borderRadius: 16, padding: 16, gap: 10 }}><RNText style={S(13, "600", c.text4)}>PAYMENT DETAILS</RNText>{[["Earnings", money(j.contractor_net), c.text], ["Tips", j.tip ? `+ ${money(j.tip)}` : "—", "#079455"], ["Payout date", j.paid_at ? new Date(j.paid_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "On confirmation", c.text]].map(([k, v, col]) => <View key={k as string} style={{ flexDirection: "row", justifyContent: "space-between" }}><RNText style={S(14, "400", c.text4)}>{k as string}</RNText><RNText style={S(14, "600", col as string)}>{v as string}</RNText></View>)}<View style={{ height: 1, backgroundColor: c.border }} />{[["Project name", j.title], ["Client", j.consumer ? `${j.consumer.first_name} ${j.consumer.last_name}` : "—"], ["Location", [j.location_address, j.location_city, j.location_state].filter(Boolean).join(", ")]].map(([k, v]) => <View key={k} style={{ flexDirection: "row", justifyContent: "space-between", gap: 12 }}><RNText style={S(14, "400", c.text4)}>{k}</RNText><RNText style={{ flex: 1, textAlign: "right", ...S(14, "500") }}>{v}</RNText></View>)}</View>}
@@ -36,7 +36,7 @@ export default function RateClientScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Rate the client" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 20, gap: 20 }} keyboardShouldPersistTaps="handled">
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 20, gap: 20 }} keyboardShouldPersistTaps="handled">
         <View><RNText style={S(22, "700")}>Rate the client</RNText><RNText style={S(14, "400", c.text3)}>How was your experience working with {j?.consumer ? `${j.consumer.first_name} ${j.consumer.last_name[0]}.` : "the client"}?</RNText></View>
         <View style={{ flexDirection: "row", justifyContent: "center", gap: 6 }}>{[1, 2, 3, 4, 5].map((n) => <Pressable key={n} onPress={() => setStars(n)} style={{ width: 48, height: 48, alignItems: "center", justifyContent: "center" }}><Ionicons name={n <= stars ? "star" : "star-outline"} size={34} color={n <= stars ? c.primary : c.border2} /></Pressable>)}</View>
         <RNText style={{ textAlign: "center", ...S(13, "400", stars ? c.text : c.text4) }}>{HINT[stars]}</RNText>

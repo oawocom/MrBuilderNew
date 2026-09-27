@@ -54,7 +54,7 @@ export default function MrCareBuyScreen() {
 
   if (done) return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
-      <ScrollView contentContainerStyle={{ padding: 16, paddingTop: 40, gap: 16, alignItems: "center" }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingTop: 40, gap: 16, alignItems: "center" }}>
         <View style={{ width: 80, height: 80, borderRadius: 40, backgroundColor: c.okBg, alignItems: "center", justifyContent: "center" }}><Ionicons name="checkmark" size={40} color={c.ok} /></View>
         <View style={{ alignItems: "center", gap: 4 }}><RNText style={S(22, "800")}>{isM ? "Service & Maintenance" : "Electronics Protection"} is active</RNText><RNText style={{ ...S(14, "400", c.text3), textAlign: "center" }}>{isM ? "Your first visit can be booked now. Reminders will follow the plan schedule." : "A pre-inspection visit registers your equipment. Claims open right after."}</RNText></View>
         <View style={{ alignSelf: "stretch", borderRadius: 16, borderWidth: 1, borderColor: c.border, backgroundColor: c.surface, paddingVertical: 4, paddingHorizontal: 16 }}>{[[P?.name ?? plan, price(P?.annual_price ?? 0) + (annual ? "/yr" : "/mo")], ["Pergolas", sel.map(name).join(", ")], ["Renews", new Date(Date.now() + 365 * 86400000).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })]].map(([k, v], i) => <View key={k} style={{ flexDirection: "row", justifyContent: "space-between", gap: 12, paddingVertical: 10, borderTopWidth: i ? 1 : 0, borderTopColor: c.border }}><RNText style={S(13.5, "400")}>{k}</RNText><RNText style={{ flex: 1, textAlign: "right", ...S(13.5, "600") }}>{v}</RNText></View>)}<View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 10, borderTopWidth: 1, borderTopColor: c.border }}><RNText style={S(13.5, "400", c.text3)}>Charged to {pms.find((x) => x.id === pm)?.label ?? "your default method"}</RNText><RNText style={S(13.5, "700")}>{money(quote?.total)}</RNText></View></View>
@@ -67,7 +67,7 @@ export default function MrCareBuyScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title={isM ? "Maintenance plan" : "Electronics Protection"} onBack={() => (step ? setStep(step - 1) : nav.goBack())} />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 16 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 16 }}>
         <Progress />
         {step === 0 && isM && (
           <>

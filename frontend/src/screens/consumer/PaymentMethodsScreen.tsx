@@ -26,7 +26,7 @@ export default function PaymentMethodsScreen() {
   return (
     <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: c.bg }}>
       <Header title="Payment methods" onBack={() => nav.goBack()} />
-      <ScrollView contentContainerStyle={{ padding: 16, gap: 16 }}>
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: 16, gap: 16 }}>
         <View style={{ gap: 8 }}>
           {pms.map((p) => { const [lg, col] = logo(p); return (
             <Pressable key={p.id} onPress={async () => { if (!p.is_default) { await api(`/payment-methods/${p.id}/default`, { method: "PATCH" }); load(); } }} onLongPress={() => Alert.alert("Remove card?", undefined, [{ text: "Keep", style: "cancel" }, { text: "Remove", style: "destructive", onPress: async () => { await api(`/payment-methods/${p.id}`, { method: "DELETE" }); load(); } }])} style={{ height: 64, borderRadius: 14, borderWidth: 1.5, borderColor: p.is_default ? c.primary : c.border, backgroundColor: p.is_default ? c.primarySoft : c.surface, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 12 }}>
